@@ -2,20 +2,22 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
+// import { getAnalytics } from "firebase/analytics"; // Analytics optional for now
 
-// TODO: Replace with your actual Firebase configuration from the Console
-// Settings -> Project Settings -> General -> Your Apps -> Config object
+// Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "REPLACE_WITH_YOUR_API_KEY",
-    authDomain: "REPLACE_WITH_YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "REPLACE_WITH_YOUR_PROJECT_ID",
-    storageBucket: "REPLACE_WITH_YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "REPLACE_WITH_YOUR_SENDER_ID",
-    appId: "REPLACE_WITH_YOUR_APP_ID"
+    apiKey: "AIzaSyC-yxQlBVsWAxdb9LKifADb0O9_As-BHXk",
+    authDomain: "bigbie.firebaseapp.com",
+    projectId: "bigbie",
+    storageBucket: "bigbie.firebasestorage.app",
+    messagingSenderId: "336826789702",
+    appId: "1:336826789702:web:75b6aca66b15707acb3f47",
+    measurementId: "G-XZ8SV0EBVM"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+// const analytics = getAnalytics(app);
 
 // Initialize Services
 export const db = getFirestore(app);

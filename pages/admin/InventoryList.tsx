@@ -12,9 +12,9 @@ const InventoryList: React.FC = () => {
         product.category.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const handleDelete = (id: string) => {
+    const handleDelete = async (id: string) => {
         if (window.confirm('Are you sure you want to delete this product?')) {
-            deleteProduct(id);
+            await deleteProduct(id);
         }
     };
 
@@ -54,7 +54,6 @@ const InventoryList: React.FC = () => {
                                 <th className="px-6 py-4 font-medium">Product</th>
                                 <th className="px-6 py-4 font-medium">Category</th>
                                 <th className="px-6 py-4 font-medium">Price</th>
-                                <th className="px-6 py-4 font-medium">Stock Status</th>
                                 <th className="px-6 py-4 font-medium text-right">Actions</th>
                             </tr>
                         </thead>
@@ -85,19 +84,6 @@ const InventoryList: React.FC = () => {
                                         </td>
                                         <td className="px-6 py-4 font-medium">
                                             Rs. {product.price.toFixed(2)}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            {isLowStock ? (
-                                                <span className="text-amber-600 text-sm font-medium flex items-center gap-1">
-                                                    <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                                                    Low Stock
-                                                </span>
-                                            ) : (
-                                                <span className="text-green-600 text-sm font-medium flex items-center gap-1">
-                                                    <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                                                    In Stock
-                                                </span>
-                                            )}
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end gap-2">

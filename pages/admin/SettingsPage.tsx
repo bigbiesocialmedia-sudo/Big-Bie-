@@ -2,8 +2,12 @@ import React, { useState } from 'react';
 import { useAdmin } from '../../context/AdminContext';
 import { Save, Lock, Phone } from 'lucide-react';
 
+
+
 const SettingsPage: React.FC = () => {
-    const { systemSettings, updateSystemSettings, resetData } = useAdmin();
+    const { homeSettings, updateHomeSettings, systemSettings, updateSystemSettings, resetData, migrateData, clearAllProducts } = useAdmin();
+
+    // Local state for form inputs
     const [adminUsername, setAdminUsername] = useState(systemSettings.adminUsername);
     const [adminPassword, setAdminPassword] = useState(systemSettings.adminPassword);
     const [whatsappNumber, setWhatsappNumber] = useState(systemSettings.whatsappNumber);
@@ -78,6 +82,8 @@ const SettingsPage: React.FC = () => {
                     </div>
                 </section>
 
+
+
                 {/* Danger Zone */}
                 <section className="bg-red-50 p-6 rounded-xl shadow-sm border border-red-100">
                     <div className="flex items-center gap-2 mb-4">
@@ -93,17 +99,13 @@ const SettingsPage: React.FC = () => {
                     </p>
 
                     <button
-                        onClick={() => {
-                            if (window.confirm('⚠️ ARE YOU SURE? \n\nThis will DELETE ALL INVENTORY products and EMPTY THE CART.\nThis action cannot be undone.')) {
-                                resetData();
-                            }
-                        }}
+                        onClick={clearAllProducts}
                         className="w-full bg-white border-2 border-red-200 text-red-600 font-bold py-3 rounded-lg hover:bg-red-600 hover:text-white transition-colors flex items-center justify-center gap-2"
                     >
-                        Erase Test Data & Reset
+                        XXX DELETE ALL INVENTORY XXX
                     </button>
                     <p className="text-xs text-red-500 mt-2 text-center">
-                        Use this before delivery to clear all test products and cart items.
+                        This action allows you to restart with an empty store.
                     </p>
                 </section>
 

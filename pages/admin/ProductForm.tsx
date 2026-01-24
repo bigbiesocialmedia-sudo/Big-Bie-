@@ -11,7 +11,7 @@ const VARIANT_TYPES = ['size', 'color'];
 const ProductForm: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { products, addProduct, updateProduct } = useAdmin();
+    const { products, addProduct, updateProduct, subCollections } = useAdmin();
 
     const isEditMode = Boolean(id);
     const existingProduct = products.find(p => p.id === id);
@@ -19,6 +19,7 @@ const ProductForm: React.FC = () => {
     // Form State
     const [name, setName] = useState('');
     const [category, setCategory] = useState(CATEGORIES[0]);
+    const [subCollection, setSubCollection] = useState('');
     const [price, setPrice] = useState('');
     const [originalPrice, setOriginalPrice] = useState('');
     const [description, setDescription] = useState('');
@@ -33,6 +34,7 @@ const ProductForm: React.FC = () => {
         if (isEditMode && existingProduct) {
             setName(existingProduct.name);
             setCategory(existingProduct.category);
+            setSubCollection(existingProduct.subCollection || '');
             setPrice(existingProduct.price.toString());
             setOriginalPrice(existingProduct.originalPrice?.toString() || '');
             setDescription(existingProduct.description);
@@ -78,7 +80,7 @@ const ProductForm: React.FC = () => {
         setVariants(newVariants);
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         const productData: Product = {
@@ -86,6 +88,7 @@ const ProductForm: React.FC = () => {
             name,
             slug: isEditMode ? existingProduct!.slug : generateSlug(name),
             category,
+            subCollection,
             price: parseFloat(price),
             originalPrice: originalPrice ? parseFloat(originalPrice) : undefined,
             description,
@@ -95,13 +98,18 @@ const ProductForm: React.FC = () => {
             variants: variants
         };
 
-        if (isEditMode) {
-            updateProduct(productData);
-        } else {
-            addProduct(productData);
+        try {
+            if (isEditMode) {
+                await updateProduct(productData);
+            } else {
+                await addProduct(productData);
+            }
+            // Only navigate AFTER the database confirms success
+            navigate('/admin/inventory');
+        } catch (error) {
+            console.error("Failed to save product:", error);
+            alert("Failed to save product. Please try again.");
         }
-
-        navigate('/admin/inventory');
     };
 
     return (
@@ -136,11 +144,32 @@ const ProductForm: React.FC = () => {
                             <select
                                 className="w-full border p-2 rounded"
                                 value={category}
-                                onChange={e => setCategory(e.target.value)}
+                                onChange={e => {
+                                    setCategory(e.target.value);
+                                    setSubCollection(''); // Reset sub-collection on category change
+                                }}
                             >
+                                <option value="">Select Category</option>
                                 {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                             </select>
                         </div>
+
+                        {/* Sub-Collection Dropdown (Dynamic) */}
+                        {category && subCollections[category] && subCollections[category].length > 0 && (
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Sub-Collection</label>
+                                <select
+                                    className="w-full border p-2 rounded"
+                                    value={subCollection}
+                                    onChange={e => setSubCollection(e.target.value)}
+                                >
+                                    <option value="">Select Sub-Collection</option>
+                                    {subCollections[category].map(sub => (
+                                        <option key={sub} value={sub}>{sub}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
                         <div>
                             <label className="block text-sm font-medium mb-1">Price</label>
                             <input

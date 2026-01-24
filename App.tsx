@@ -16,6 +16,10 @@ import SlipsPage from './pages/SlipsPage';
 import ProductPage from './pages/ProductPage';
 import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
+import OurStoryPage from './pages/OurStoryPage';
+import DealsPage from './pages/DealsPage';
+import ContactUsPage from './pages/ContactUsPage';
+import LegalPage from './pages/LegalPage';
 import Header from './components/Header';
 // Admin Imports
 import { AdminProvider } from './context/AdminContext';
@@ -23,6 +27,7 @@ import ProtectedAdminRoute from './components/ProtectedAdminRoute';
 import LoginPage from './pages/admin/LoginPage';
 import AdminLayout from './pages/admin/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
+import CollectionsPage from './pages/admin/CollectionsPage';
 import InventoryList from './pages/admin/InventoryList';
 import ProductForm from './pages/admin/ProductForm';
 import SettingsPage from './pages/admin/SettingsPage';
@@ -61,11 +66,20 @@ const App: React.FC = () => {
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
 
+            {/* About Section Routes */}
+            <Route path="/about/our-story" element={<OurStoryPage />} />
+            <Route path="/about/deals" element={<DealsPage />} />
+            <Route path="/about/contact-us" element={<ContactUsPage />} />
+
+            {/* Legal Page */}
+            <Route path="/legal" element={<LegalPage />} />
+
             {/* Admin Routes */}
             <Route path="/admin/login" element={<LoginPage />} />
             <Route path="/admin" element={<ProtectedAdminRoute />}>
               <Route element={<AdminLayout />}>
                 <Route path="dashboard" element={<Dashboard />} />
+                <Route path="collections" element={<CollectionsPage />} />
                 <Route path="inventory" element={<InventoryList />} />
                 <Route path="inventory/new" element={<ProductForm />} />
                 <Route path="inventory/edit/:id" element={<ProductForm />} />

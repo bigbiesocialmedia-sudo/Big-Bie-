@@ -31,20 +31,20 @@ const WhyChooseSection: React.FC = () => {
     <section className="py-24 bg-white">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
-          <motion.h2 
+          <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-4xl font-bold uppercase tracking-widest text-[#1A1A1A]"
           >
-            Why Choose Prithvi?
+            Why Choose Big Bie?
           </motion.h2>
           <div className="w-20 h-1 bg-[#F4C430] mx-auto mt-4"></div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {FEATURES.map((feature, idx) => (
-            <motion.div 
+            <motion.div
               key={feature.title}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}

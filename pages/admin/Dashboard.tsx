@@ -25,7 +25,7 @@ const Dashboard: React.FC = () => {
             </div>
 
             <div className="mt-12 bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-                <h2 className="text-xl font-bold mb-4">Welcome to Prithvi Admin</h2>
+                <h2 className="text-xl font-bold mb-4">Welcome to Big Bie Admin</h2>
                 <p className="text-gray-600">
                     Use the sidebar to manage your inventory and settings.
                     Currently, you can view the dashboard stats above reflecting your client-side database.

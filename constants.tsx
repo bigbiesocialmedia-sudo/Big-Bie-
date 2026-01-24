@@ -10,7 +10,15 @@ export const NAV_LINKS: NavItem[] = [
   { label: 'Slips', href: '/collections/slips' },
   { label: 'Panties', href: '/collections/panties', dropdown: ['Hipsters', 'Bikinis', 'Boy Shorts'] },
   { label: 'Kids', href: '/collections/kids' },
-  { label: 'About', href: '#', dropdown: ['Our Story', 'Careers', 'Quality Promise'] },
+  {
+    label: 'About',
+    href: '#',
+    dropdown: [
+      { label: 'Our Story', href: '/about/our-story' },
+      { label: 'Deals', href: '/about/deals' },
+      { label: 'Contact Us', href: '/about/contact-us' }
+    ]
+  },
 ];
 
 export const CATEGORIES: Category[] = [
@@ -36,8 +44,8 @@ export const CATEGORIES: Category[] = [
   },
 ];
 
-export const Logo = () => (
-  <div className="flex items-center justify-center bg-[#F4C430] text-black font-bold text-xl px-4 py-2 rounded shadow-md border border-black/10">
-    LOGO
-  </div>
+import LogoImage from './Asset/Logo.png';
+
+export const Logo = ({ className }: { className?: string }) => (
+  <img src={LogoImage} alt="Big Bie Logo" className={`w-auto object-contain ${className || 'h-9'}`} />
 );

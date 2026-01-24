@@ -2,10 +2,15 @@
 // Fix: Added React import to resolve the 'React' namespace error for React.ReactNode
 import React from 'react';
 
+export interface DropdownItem {
+  label: string;
+  href: string;
+}
+
 export interface NavItem {
   label: string;
   href: string;
-  dropdown?: string[];
+  dropdown?: string[] | DropdownItem[];
 }
 
 export interface Category {
@@ -35,6 +40,7 @@ export interface Product {
   name: string;
   slug: string; // SEO-friendly URL slug
   category: string;
+  subCollection?: string;
   price: number;
   originalPrice?: number; // For showing discounts
   description: string;

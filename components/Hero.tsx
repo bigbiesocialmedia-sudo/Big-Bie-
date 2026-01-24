@@ -37,7 +37,7 @@ const Hero: React.FC = () => {
       >
         <img
           src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&q=80&w=2400"
-          alt="Prithvi Hero Banner"
+          alt="Big Bie Hero Banner"
           className="w-full h-full object-cover object-center pointer-events-none select-none"
           loading="eager"
         />

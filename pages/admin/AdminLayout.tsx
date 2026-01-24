@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../context/AdminContext';
-import { LayoutDashboard, Package, Settings, LogOut, House } from 'lucide-react';
+import { LayoutDashboard, Package, Settings, LogOut, House, Layers } from 'lucide-react';
 
 const AdminLayout: React.FC = () => {
     const { logout } = useAdmin();
@@ -16,6 +16,7 @@ const AdminLayout: React.FC = () => {
     const menuItems = [
         { label: 'Dashboard', icon: LayoutDashboard, href: '/admin/dashboard' },
         { label: 'Inventory', icon: Package, href: '/admin/inventory' },
+        { label: 'Collections', icon: Layers, href: '/admin/collections' },
         { label: 'Home Settings', icon: House, href: '/admin/home-settings' },
         { label: 'System Settings', icon: Settings, href: '/admin/settings' },
     ];
@@ -25,7 +26,7 @@ const AdminLayout: React.FC = () => {
             {/* Sidebar */}
             <aside className="w-64 bg-black text-white flex flex-col fixed h-full z-10">
                 <div className="p-6 border-b border-gray-800">
-                    <h2 className="text-xl font-bold text-[#F4C430]">Prithvi Admin</h2>
+                    <h2 className="text-xl font-bold text-[#F4C430]">Big Bie Admin</h2>
                 </div>
 
                 <nav className="flex-1 p-4 space-y-2">
