@@ -1,24 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAdmin } from '../../context/AdminContext';
-import { Save, Lock, Phone } from 'lucide-react';
-
-
+import { Save, Lock, Phone, User, AlertTriangle } from 'lucide-react';
 
 const SettingsPage: React.FC = () => {
-    const { homeSettings, updateHomeSettings, systemSettings, updateSystemSettings, resetData, migrateData, clearAllProducts } = useAdmin();
+    const {
+        systemSettings,
+        updateSystemSettings,
+        currentUser,
+        clearAllProducts
+    } = useAdmin();
 
     // Local state for form inputs
-    const [adminUsername, setAdminUsername] = useState(systemSettings.adminUsername);
-    const [adminPassword, setAdminPassword] = useState(systemSettings.adminPassword);
     const [whatsappNumber, setWhatsappNumber] = useState(systemSettings.whatsappNumber);
+    const [loading, setLoading] = useState(false);
 
-    const handleSave = () => {
-        updateSystemSettings({
-            adminUsername,
-            adminPassword,
-            whatsappNumber
-        });
-        alert('System settings saved successfully!');
+    // Sync local state when Firebase loads settings/user
+    useEffect(() => {
+        setWhatsappNumber(systemSettings.whatsappNumber);
+    }, [systemSettings]);
+
+    const handleSave = async () => {
+        setLoading(true);
+        try {
+            // Update WhatsApp (Firestore)
+            updateSystemSettings({
+                ...systemSettings,
+                whatsappNumber
+            });
+
+            alert('System settings saved successfully!');
+        } catch (error: any) {
+            console.error("Settings Error:", error);
+            alert('Failed to save settings: ' + error.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -26,38 +42,6 @@ const SettingsPage: React.FC = () => {
             <h1 className="text-3xl font-bold mb-8">System Settings</h1>
 
             <div className="space-y-8">
-
-                {/* Admin Credentials */}
-                <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <div className="flex items-center gap-2 mb-4">
-                        <Lock className="text-[#F4C430]" />
-                        <h2 className="text-xl font-semibold">Admin Credentials</h2>
-                    </div>
-                    <p className="text-sm text-gray-500 mb-6">
-                        Update your administrator login details.
-                    </p>
-
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium mb-1">Username</label>
-                            <input
-                                type="text"
-                                className="w-full border p-2 rounded-lg"
-                                value={adminUsername}
-                                onChange={e => setAdminUsername(e.target.value)}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1">Password</label>
-                            <input
-                                type="text"
-                                className="w-full border p-2 rounded-lg"
-                                value={adminPassword}
-                                onChange={e => setAdminPassword(e.target.value)}
-                            />
-                        </div>
-                    </div>
-                </section>
 
                 {/* Communication */}
                 <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
@@ -73,7 +57,7 @@ const SettingsPage: React.FC = () => {
                         <label className="block text-sm font-medium mb-1">WhatsApp Number</label>
                         <input
                             type="text"
-                            placeholder="+91 9876543210"
+                            placeholder="Enter WhatsApp number with country code"
                             className="w-full border p-2 rounded-lg"
                             value={whatsappNumber}
                             onChange={e => setWhatsappNumber(e.target.value)}
@@ -82,15 +66,11 @@ const SettingsPage: React.FC = () => {
                     </div>
                 </section>
 
-
-
                 {/* Danger Zone */}
                 <section className="bg-red-50 p-6 rounded-xl shadow-sm border border-red-100">
                     <div className="flex items-center gap-2 mb-4">
                         <div className="p-2 bg-red-100 rounded-lg">
-                            <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
+                            <AlertTriangle className="w-5 h-5 text-red-600" />
                         </div>
                         <h2 className="text-xl font-semibold text-red-900">Danger Zone</h2>
                     </div>
@@ -112,10 +92,11 @@ const SettingsPage: React.FC = () => {
                 <div className="sticky bottom-4">
                     <button
                         onClick={handleSave}
-                        className="w-full bg-black text-white font-bold text-lg py-4 rounded-xl shadow-lg hover:bg-gray-800 transition-transform active:scale-95 flex justify-center items-center gap-2"
+                        disabled={loading}
+                        className="w-full bg-black text-white font-bold text-lg py-4 rounded-xl shadow-lg hover:bg-gray-800 transition-transform active:scale-95 flex justify-center items-center gap-2 disabled:opacity-75"
                     >
                         <Save size={24} />
-                        Save System Settings
+                        {loading ? 'Saving...' : 'Save System Settings'}
                     </button>
                 </div>
 

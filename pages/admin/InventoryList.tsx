@@ -65,11 +65,41 @@ const InventoryList: React.FC = () => {
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                                                    <img
-                                                        src={product.images[0]}
-                                                        alt={product.name}
-                                                        className="w-full h-full object-cover"
-                                                    />
+                                                    {/* Image Logic: Global -> First Variant -> Placeholder */}
+                                                    {(() => {
+                                                        // 1. Global Image
+                                                        let displayImage = product.images && product.images.length > 0 ? product.images[0] : null;
+
+                                                        // 2. Fallback: Legacy Variants
+                                                        if (!displayImage && product.variants && product.variants.length > 0) {
+                                                            const firstVar = product.variants[0];
+                                                            if (firstVar.images && firstVar.images.length > 0) {
+                                                                displayImage = firstVar.images[0];
+                                                            }
+                                                        }
+
+                                                        // 3. Fallback: New Variant Combinations (Color-First)
+                                                        if (!displayImage && product.variantCombinations && product.variantCombinations.length > 0) {
+                                                            const firstCombo = product.variantCombinations[0];
+                                                            if (firstCombo.images && firstCombo.images.length > 0) {
+                                                                displayImage = firstCombo.images[0];
+                                                            }
+                                                        }
+
+                                                        // 4. Default Placeholder
+                                                        if (!displayImage) displayImage = 'https://placehold.co/100?text=No+Image';
+
+                                                        return (
+                                                            <img
+                                                                src={displayImage}
+                                                                alt={product.name}
+                                                                className="w-full h-full object-cover"
+                                                                onError={(e) => {
+                                                                    (e.target as HTMLImageElement).src = 'https://placehold.co/100?text=Error';
+                                                                }}
+                                                            />
+                                                        );
+                                                    })()}
                                                 </div>
                                                 <div>
                                                     <p className="font-semibold text-gray-900">{product.name}</p>

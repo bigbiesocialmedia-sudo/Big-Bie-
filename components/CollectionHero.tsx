@@ -6,11 +6,12 @@ interface CollectionHeroProps {
     title: string;
     imageUrl: string;
     bgColor?: string;
+    objectPosition?: string;
 }
 
-const CollectionHero: React.FC<CollectionHeroProps> = ({ title, imageUrl, bgColor = 'bg-gray-200' }) => {
+const CollectionHero: React.FC<CollectionHeroProps> = ({ title, imageUrl, bgColor = 'bg-gray-200', objectPosition = 'object-center' }) => {
     return (
-        <section className={`relative w-full h-[300px] overflow-hidden ${bgColor}`}>
+        <section className={`relative w-full h-[450px] overflow-hidden ${bgColor}`}>
             <motion.div
                 initial={{ scale: 1.05, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -20,7 +21,7 @@ const CollectionHero: React.FC<CollectionHeroProps> = ({ title, imageUrl, bgColo
                 <img
                     src={imageUrl}
                     alt={title}
-                    className="w-full h-full object-cover"
+                    className={`w-full h-full object-cover ${objectPosition}`}
                 />
             </motion.div>
 

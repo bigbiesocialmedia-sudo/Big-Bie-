@@ -47,16 +47,59 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 newItems[existingItemIndex].quantity += quantity;
                 return newItems;
             } else {
+                // CRITICAL: Get color-specific image and labels from matching variant
+                let productImage = '';
+                let sizeLabel = selectedSize;
+                let colorLabel = selectedColor;
+
+                // Priority 1: Find exact size+color match and get its image
+                if (product.variantCombinations && product.variantCombinations.length > 0) {
+                    const matchingCombo = product.variantCombinations.find(
+                        (vc: any) => vc.size === selectedSize && vc.color === selectedColor
+                    );
+                    if (matchingCombo) {
+                        sizeLabel = matchingCombo.sizeLabel || selectedSize;
+                        colorLabel = matchingCombo.colorLabel || selectedColor;
+                        // Get COLOR-SPECIFIC image
+                        if (matchingCombo.images && matchingCombo.images.length > 0) {
+                            productImage = matchingCombo.images[0];
+                        }
+                    }
+                }
+
+                // Priority 2: If no exact match, find any combo with this color
+                if (!productImage && product.variantCombinations && product.variantCombinations.length > 0) {
+                    const colorCombo = product.variantCombinations.find((vc: any) => vc.color === selectedColor);
+                    if (colorCombo && colorCombo.images && colorCombo.images.length > 0) {
+                        productImage = colorCombo.images[0];
+                    }
+                }
+
+                // Priority 3: Check imageGroups for this color
+                if (!productImage && product.imageGroups && product.imageGroups.length > 0) {
+                    const colorGroup = product.imageGroups.find((g: any) => g.colorValue === selectedColor);
+                    if (colorGroup && colorGroup.images && colorGroup.images.length > 0) {
+                        productImage = colorGroup.images[0];
+                    }
+                }
+
+                // Priority 4: Fallback to generic product images
+                if (!productImage && product.images && product.images.length > 0) {
+                    productImage = product.images[0];
+                }
+
                 const newItem: CartItem = {
                     productId: product.id,
                     productName: product.name,
                     productSlug: product.slug,
-                    image: product.images[0],
+                    image: productImage,
                     price: product.price,
                     quantity,
                     selectedVariants: {
                         size: selectedSize,
+                        sizeLabel: sizeLabel,
                         color: selectedColor,
+                        colorLabel: colorLabel,
                     },
                 };
                 return [...prevItems, newItem];

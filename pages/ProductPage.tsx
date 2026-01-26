@@ -1,13 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-// import { getProductBySlug } from '../data/products'; // REMOVED: Static data source
 import { useCart } from '../context/CartContext';
-import { useAdmin } from '../context/AdminContext'; // ADDED: Dynamic data source
+import { useAdmin } from '../context/AdminContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ImageGallery from '../components/ImageGallery';
 import VariantSelector from '../components/VariantSelector';
+import AdvancedVariantSelector from '../components/AdvancedVariantSelector';
 import { Star } from 'lucide-react';
+import {
+    usesAdvancedVariants,
+    getAvailableSizes,
+    getAvailableColors,
+    getImagesForColor,
+    isVariantAvailable,
+    getVariantStock
+} from '../utils/variantHelpers';
 
 const ProductPage: React.FC = () => {
     const { productSlug } = useParams<{ productSlug: string }>();
@@ -20,17 +28,116 @@ const ProductPage: React.FC = () => {
     const [selectedSize, setSelectedSize] = useState<string>('');
     const [selectedColor, setSelectedColor] = useState<string>('');
     const [quantity, setQuantity] = useState<number>(1);
+    const [currentImages, setCurrentImages] = useState<string[]>([]);
 
-    // Set default variants on load
+    // Set default variants and images on load
     useEffect(() => {
         if (product) {
-            const defaultSize = product.variants.find((v) => v.type === 'size' && v.inStock);
-            const defaultColor = product.variants.find((v) => v.type === 'color' && v.inStock);
+            console.log('[ProductPage] Product loaded:', {
+                slug: product.slug,
+                mainImages: product.images?.length || 0,
+                imageGroups: product.imageGroups?.length || 0,
+                variantCombinations: product.variantCombinations?.length || 0
+            });
 
-            if (defaultSize) setSelectedSize(defaultSize.value);
-            if (defaultColor) setSelectedColor(defaultColor.value);
+            // Get initial images with fallbacks
+            let initialImages = product.images || [];
+
+            // Fallback 1: If main images empty, try imageGroups
+            if (initialImages.length === 0 && product.imageGroups && product.imageGroups.length > 0) {
+                console.log('[ProductPage] Using imageGroups as fallback');
+                const allGroupImages: string[] = [];
+                product.imageGroups.forEach(group => {
+                    if (group.images) allGroupImages.push(...group.images);
+                });
+                initialImages = allGroupImages;
+            }
+
+            // Fallback 2: If still empty, try first combination's images
+            if (initialImages.length === 0 && product.variantCombinations && product.variantCombinations.length > 0) {
+                console.log('[ProductPage] Using variantCombinations as fallback');
+                const firstCombo = product.variantCombinations[0];
+                if (firstCombo.images && firstCombo.images.length > 0) {
+                    initialImages = firstCombo.images;
+                }
+            }
+
+            setCurrentImages(initialImages);
+            console.log('[ProductPage] Initial images set:', initialImages.length);
+
+            // Get available sizes and colors
+            const availableSizes = getAvailableSizes(product);
+            const availableColors = getAvailableColors(product);
+
+            // Set first available size and color as defaults
+            if (availableSizes.length > 0) setSelectedSize(availableSizes[0]);
+            if (availableColors.length > 0) {
+                const firstColor = availableColors[0];
+                setSelectedColor(firstColor);
+                // Set images for default color
+                const colorImages = getImagesForColor(product, firstColor);
+                console.log('[ProductPage] Images for first color:', colorImages.length);
+                setCurrentImages(colorImages);
+            }
         }
     }, [product]);
+
+    // Handle size selection with dynamic color filtering
+    const handleSizeSelect = (size: string) => {
+        console.log('[handleSizeSelect] Selected size:', size);
+        setSelectedSize(size);
+
+        // Get colors available for this size
+        const availableColors = getAvailableColors(product!, size);
+        console.log('[handleSizeSelect] Available colors for size:', availableColors);
+
+        // If current color is no longer available, auto-select first available
+        if (selectedColor && !availableColors.includes(selectedColor)) {
+            if (availableColors.length > 0) {
+                const newColor = availableColors[0];
+                console.log('[handleSizeSelect] Auto-selecting color:', newColor);
+                setSelectedColor(newColor);
+                const newImages = getImagesForColor(product!, newColor);
+                console.log('[handleSizeSelect] Loading images for new color:', newImages.length);
+                setCurrentImages(newImages);
+            } else {
+                // No colors available for this size
+                setSelectedColor('');
+                setCurrentImages([]);
+            }
+        } else if (selectedColor) {
+            // Color is still valid, just update images for this combination
+            const newImages = getImagesForColor(product!, selectedColor);
+            console.log('[handleSizeSelect] Updating images for existing color:', newImages.length);
+            setCurrentImages(newImages);
+        }
+    };
+
+    // Handle color selection with dynamic size filtering and image switching
+    const handleColorSelect = (color: string) => {
+        console.log('[handleColorSelect] Selected color:', color);
+        setSelectedColor(color);
+
+        // Switch images for selected color
+        const newImages = getImagesForColor(product!, color);
+        console.log('[handleColorSelect] Loading images:', newImages.length);
+        setCurrentImages(newImages);
+
+        // Get sizes available for this color
+        const availableSizes = getAvailableSizes(product!, color);
+        console.log('[handleColorSelect] Available sizes for color:', availableSizes);
+
+        // If current size is no longer available, auto-select first available
+        if (selectedSize && !availableSizes.includes(selectedSize)) {
+            if (availableSizes.length > 0) {
+                const newSize = availableSizes[0];
+                console.log('[handleColorSelect] Auto-selecting size:', newSize);
+                setSelectedSize(newSize);
+            } else {
+                setSelectedSize('');
+            }
+        }
+    };
 
     if (!product) {
         return (
@@ -51,13 +158,35 @@ const ProductPage: React.FC = () => {
     const [isAdded, setIsAdded] = useState(false);
 
     const handleAddToCart = () => {
-        if (!selectedSize && product.variants.some(v => v.type === 'size')) {
+        // Check if size/color selection is required
+        const hasSize = usesAdvancedVariants(product)
+            ? (product.variantCombinations?.some(vc => vc.stock > 0) || false)
+            : product.variants.some(v => v.type === 'size');
+        const hasColor = usesAdvancedVariants(product)
+            ? (product.variantCombinations?.some(vc => vc.stock > 0) || false)
+            : product.variants.some(v => v.type === 'color');
+
+        if (!selectedSize && hasSize) {
             alert('Please select a size');
             return;
         }
-        if (!selectedColor && product.variants.some(v => v.type === 'color')) {
+        if (!selectedColor && hasColor) {
             alert('Please select a color');
             return;
+        }
+
+        // For advanced variants, check stock availability
+        if (usesAdvancedVariants(product)) {
+            if (!isVariantAvailable(product, selectedSize, selectedColor)) {
+                alert('This combination is out of stock');
+                return;
+            }
+
+            const stock = getVariantStock(product, selectedSize, selectedColor);
+            if (stock !== null && quantity > stock) {
+                alert(`Only ${stock} items available for this combination`);
+                return;
+            }
         }
 
         addToCart(product, quantity, selectedSize, selectedColor);
@@ -66,13 +195,35 @@ const ProductPage: React.FC = () => {
     };
 
     const handleBuyNow = () => {
-        if (!selectedSize && product.variants.some(v => v.type === 'size')) {
+        // Check if size/color selection is required
+        const hasSize = usesAdvancedVariants(product)
+            ? (product.variantCombinations?.some(vc => vc.stock > 0) || false)
+            : product.variants.some(v => v.type === 'size');
+        const hasColor = usesAdvancedVariants(product)
+            ? (product.variantCombinations?.some(vc => vc.stock > 0) || false)
+            : product.variants.some(v => v.type === 'color');
+
+        if (!selectedSize && hasSize) {
             alert('Please select a size');
             return;
         }
-        if (!selectedColor && product.variants.some(v => v.type === 'color')) {
+        if (!selectedColor && hasColor) {
             alert('Please select a color');
             return;
+        }
+
+        // For advanced variants, check stock availability
+        if (usesAdvancedVariants(product)) {
+            if (!isVariantAvailable(product, selectedSize, selectedColor)) {
+                alert('This combination is out of stock');
+                return;
+            }
+
+            const stock = getVariantStock(product, selectedSize, selectedColor);
+            if (stock !== null && quantity > stock) {
+                alert(`Only ${stock} items available for this combination`);
+                return;
+            }
         }
 
         addToCart(product, quantity, selectedSize, selectedColor);
@@ -103,7 +254,7 @@ const ProductPage: React.FC = () => {
                 <div className="grid md:grid-cols-2 gap-8 lg:gap-12 mb-16">
                     {/* Left: Image Gallery */}
                     <div>
-                        <ImageGallery images={product.images} productName={product.name} />
+                        <ImageGallery images={currentImages} productName={product.name} />
                     </div>
 
                     {/* Right: Product Details */}
@@ -149,22 +300,46 @@ const ProductPage: React.FC = () => {
                             </button>
                         )}
 
-                        {/* Variant Selectors */}
-                        <VariantSelector
-                            variants={product.variants}
-                            type="size"
-                            selectedValue={selectedSize}
-                            onSelect={setSelectedSize}
-                            label="SIZE"
-                        />
+                        {/* Variant Selectors - Use Advanced for new products, Legacy for old */}
+                        {usesAdvancedVariants(product) ? (
+                            <>
+                                <AdvancedVariantSelector
+                                    product={product}
+                                    type="size"
+                                    selectedValue={selectedSize}
+                                    selectedColor={selectedColor}
+                                    onSelect={handleSizeSelect}
+                                    label="SIZE"
+                                />
 
-                        <VariantSelector
-                            variants={product.variants}
-                            type="color"
-                            selectedValue={selectedColor}
-                            onSelect={setSelectedColor}
-                            label="COLOR"
-                        />
+                                <AdvancedVariantSelector
+                                    product={product}
+                                    type="color"
+                                    selectedValue={selectedColor}
+                                    selectedSize={selectedSize}
+                                    onSelect={handleColorSelect}
+                                    label="COLOR"
+                                />
+                            </>
+                        ) : (
+                            <>
+                                <VariantSelector
+                                    variants={product.variants}
+                                    type="size"
+                                    selectedValue={selectedSize}
+                                    onSelect={handleSizeSelect}
+                                    label="SIZE"
+                                />
+
+                                <VariantSelector
+                                    variants={product.variants}
+                                    type="color"
+                                    selectedValue={selectedColor}
+                                    onSelect={handleColorSelect}
+                                    label="COLOR"
+                                />
+                            </>
+                        )}
 
                         {/* Quantity Selector */}
                         <div className="mb-6">

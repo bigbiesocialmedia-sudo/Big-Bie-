@@ -2,6 +2,144 @@
 import { Product } from '../types';
 
 export const SAMPLE_PRODUCTS: Product[] = [
+    // --- TEST PRODUCT: ADVANCED VARIANTS ---
+    {
+        id: 'advanced-bra-test',
+        name: 'Premium Comfort Bra (Advanced)',
+        slug: 'premium-comfort-bra-advanced',
+        category: 'Bras',
+        price: 899,
+        originalPrice: 1199,
+        description: 'Experience ultimate comfort with our Premium Comfort Bra. Features advanced size+color combination inventory management with color-based image switching.',
+        rating: 4.9,
+        reviewCount: 156,
+        images: [
+            // Default images (Nude color)
+            'https://images.unsplash.com/photo-1594616091971-bf856a77b57d?q=80&w=1740&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&q=80&w=800',
+        ],
+        variants: [], // Legacy variants array kept empty for advanced variant products
+
+        // ADVANCED: Variant Combinations (Size + Color + Stock)
+        variantCombinations: [
+            // Size 75cm combinations
+            {
+                id: 'var-75-nude',
+                sku: 'BRA-ADV-75-NUDE',
+                size: '75cm',
+                sizeLabel: '75 CM',
+                color: '#D4A373',
+                colorLabel: 'Nude',
+                stock: 15,
+                images: [
+                    'https://images.unsplash.com/photo-1594616091971-bf856a77b57d?q=80&w=1740&auto=format&fit=crop',
+                    'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&q=80&w=800',
+                ]
+            },
+            {
+                id: 'var-75-black',
+                sku: 'BRA-ADV-75-BLACK',
+                size: '75cm',
+                sizeLabel: '75 CM',
+                color: '#000000',
+                colorLabel: 'Black',
+                stock: 8,
+                images: [
+                    'https://images.unsplash.com/photo-1620799140408-ed5341cd2431?auto=format&fit=crop&q=80&w=800',
+                    'https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&q=80&w=800',
+                ]
+            },
+            {
+                id: 'var-75-pink',
+                sku: 'BRA-ADV-75-PINK',
+                size: '75cm',
+                sizeLabel: '75 CM',
+                color: '#E75480',
+                colorLabel: 'Pink',
+                stock: 0, // Out of stock
+            },
+
+            // Size 80cm combinations
+            {
+                id: 'var-80-nude',
+                sku: 'BRA-ADV-80-NUDE',
+                size: '80cm',
+                sizeLabel: '80 CM',
+                color: '#D4A373',
+                colorLabel: 'Nude',
+                stock: 12,
+                images: [
+                    'https://images.unsplash.com/photo-1594616091971-bf856a77b57d?q=80&w=1740&auto=format&fit=crop',
+                    'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&q=80&w=800',
+                ]
+            },
+            {
+                id: 'var-80-black',
+                sku: 'BRA-ADV-80-BLACK',
+                size: '80cm',
+                sizeLabel: '80 CM',
+                color: '#000000',
+                colorLabel: 'Black',
+                stock: 20,
+                images: [
+                    'https://images.unsplash.com/photo-1620799140408-ed5341cd2431?auto=format&fit=crop&q=80&w=800',
+                    'https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&q=80&w=800',
+                ]
+            },
+            {
+                id: 'var-80-pink',
+                sku: 'BRA-ADV-80-PINK',
+                size: '80cm',
+                sizeLabel: '80 CM',
+                color: '#E75480',
+                colorLabel: 'Pink',
+                stock: 5,
+                images: [
+                    'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&q=80&w=800',
+                ]
+            },
+
+            // Size 85cm combinations
+            {
+                id: 'var-85-nude',
+                sku: 'BRA-ADV-85-NUDE',
+                size: '85cm',
+                sizeLabel: '85 CM',
+                color: '#D4A373',
+                colorLabel: 'Nude',
+                stock: 0, // Out of stock
+            },
+            {
+                id: 'var-85-black',
+                sku: 'BRA-ADV-85-BLACK',
+                size: '85cm',
+                sizeLabel: '85 CM',
+                color: '#000000',
+                colorLabel: 'Black',
+                stock: 10,
+                images: [
+                    'https://images.unsplash.com/photo-1620799140408-ed5341cd2431?auto=format&fit=crop&q=80&w=800',
+                    'https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&q=80&w=800',
+                ]
+            },
+        ],
+
+        // ADVANCED: Color-based image mapping (alternative to per-variant images)
+        imagesByColor: {
+            '#D4A373': [ // Nude
+                'https://images.unsplash.com/photo-1594616091971-bf856a77b57d?q=80&w=1740&auto=format&fit=crop',
+                'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&q=80&w=800',
+            ],
+            '#000000': [ // Black
+                'https://images.unsplash.com/photo-1620799140408-ed5341cd2431?auto=format&fit=crop&q=80&w=800',
+                'https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&q=80&w=800',
+            ],
+            '#E75480': [ // Pink
+                'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&q=80&w=800',
+            ]
+        }
+    },
+
     // --- EXISTING SAMPLE PRODUCTS ---
     {
         id: 'rose-camisole-slip',
@@ -14,8 +152,8 @@ export const SAMPLE_PRODUCTS: Product[] = [
         rating: 4.5,
         reviewCount: 12,
         images: [
-            'https://images.unsplash.com/photo-1596462502278-27bfad4575a6?auto=format&fit=crop&q=80&w=800',
-            'https://images.unsplash.com/photo-1596462502278-27bfad4575a6?auto=format&fit=crop&q=80&w=800',
+            'https://images.unsplash.com/photo-1594616091971-bf856a77b57d?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+            'https://images.unsplash.com/photo-1594616091971-bf856a77b57d?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
             'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&q=80&w=800',
             'https://images.unsplash.com/photo-1594633313593-bab3825d0caf?auto=format&fit=crop&q=80&w=800',
         ],

@@ -24,22 +24,22 @@ export const NAV_LINKS: NavItem[] = [
 export const CATEGORIES: Category[] = [
   {
     title: 'Bras',
-    image: 'https://images.unsplash.com/photo-1596462502278-27bfad4575a6?auto=format&fit=crop&q=80&w=800',
+    image: '/Products/Home Collection/Bra.png',
     href: '/collections/bras',
   },
   {
     title: 'Kids',
-    image: 'https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?auto=format&fit=crop&q=80&w=800',
+    image: '/Products/Home Collection/Kids.png',
     href: '/collections/kids',
   },
   {
     title: 'Panties',
-    image: 'https://images.unsplash.com/photo-1616150841131-4043232187f5?auto=format&fit=crop&q=80&w=800',
+    image: '/Products/Home Collection/Panties.png',
     href: '/collections/panties',
   },
   {
     title: 'Slips',
-    image: 'https://images.unsplash.com/photo-1562157873-818bc0726f68?auto=format&fit=crop&q=80&w=800',
+    image: '/Products/Home Collection/Slips.png',
     href: '/collections/slips',
   },
 ];

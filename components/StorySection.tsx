@@ -13,9 +13,12 @@ const StorySection: React.FC = () => {
         viewport={{ once: true }}
         className="absolute inset-0 w-full h-full"
       >
-        <img
-          src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&q=80&w=1920"
-          alt="Manufacturing Process"
+        <video
+          src="https://videos.pexels.com/video-files/9092375/9092375-hd_1920_1080_30fps.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/30"></div>

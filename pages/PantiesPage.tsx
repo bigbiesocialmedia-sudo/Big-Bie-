@@ -14,7 +14,8 @@ const PantiesPage: React.FC = () => {
             <Header />
             <CollectionHero
                 title="Panties"
-                imageUrl="https://images.unsplash.com/photo-1571513722275-4b41940f54b8?auto=format&fit=crop&q=80&w=1920"
+                imageUrl="https://images.pexels.com/photos/15045410/pexels-photo-15045410.jpeg"
+                objectPosition="object-[center_80%]"
             />
             <ProductGrid category="Panties" products={pantiesProducts} />
             <Footer />

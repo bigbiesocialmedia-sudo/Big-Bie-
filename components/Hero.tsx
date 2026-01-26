@@ -1,29 +1,14 @@
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useAdmin } from '../context/AdminContext';
+import React from 'react';
+import { motion } from 'framer-motion';
 
 const Hero: React.FC = () => {
-  const { homeSettings } = useAdmin();
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-  useEffect(() => {
-    if (homeSettings.bannerImages.length <= 1) return;
-
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % homeSettings.bannerImages.length);
-    }, 5000); // Slide every 5 seconds
-
-    return () => clearInterval(interval);
-  }, [homeSettings.bannerImages]);
-
   return (
-    <section className="relative w-full aspect-square lg:aspect-auto lg:h-screen overflow-hidden bg-[#F4C430]">
+    <section className="relative w-full aspect-square lg:aspect-auto lg:h-screen overflow-hidden bg-black">
       {/* 
-        STRICT COMPLIANCE: 
-        - ONE image = the entire section.
-        - No headings, buttons, or UI elements.
+        IMAGE BACKGROUND:
         - Full viewport width and height.
+        - Static background image.
         - Cinematic zoom-out animation on load.
       */}
       <motion.div
@@ -36,17 +21,15 @@ const Hero: React.FC = () => {
         className="w-full h-full"
       >
         <img
-          src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&q=80&w=2400"
-          alt="Big Bie Hero Banner"
+          src="/Products/Home Collection/HomeBanner.png"
+          alt="Hero Banner"
           className="w-full h-full object-cover object-center pointer-events-none select-none"
-          loading="eager"
         />
       </motion.div>
 
       {/* 
-        The background brand color is set on the section to ensure no flickering 
-        during image load. All marketing text and branding are assumed to be 
-        flattened within the banner image itself.
+        The background color is set to black to ensure no flickering 
+        during image load.
       */}
     </section>
   );

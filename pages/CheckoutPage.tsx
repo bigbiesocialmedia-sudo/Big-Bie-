@@ -34,11 +34,11 @@ const CheckoutPage: React.FC = () => {
 
         // Get WhatsApp number from settings or fallback
         // Remove any non-digit characters from the number for the URL
-        const rawPhone = systemSettings.whatsappNumber || '919876543210';
+        const rawPhone = systemSettings.whatsappNumber || '';
         const merchantPhone = rawPhone.replace(/\D/g, '');
 
         if (!merchantPhone) {
-            alert('Merchant WhatsApp number is not configured appropriately. Please contact support.');
+            alert('WhatsApp number is not configured. Please contact the administrator to set up the WhatsApp number in System Settings.');
             return;
         }
 
@@ -49,8 +49,8 @@ const CheckoutPage: React.FC = () => {
         // 2. Format Product Details with clear breakdown
         const productDetails = cartItems.map((item, index) => {
             const variantInfo = [];
-            if (item.selectedVariants.size) variantInfo.push(`Size: ${item.selectedVariants.size}`);
-            if (item.selectedVariants.color) variantInfo.push(`Color: ${item.selectedVariants.color}`);
+            if (item.selectedVariants.sizeLabel) variantInfo.push(`Size: ${item.selectedVariants.sizeLabel}`);
+            if (item.selectedVariants.colorLabel) variantInfo.push(`Color: ${item.selectedVariants.colorLabel}`);
             const variantStr = variantInfo.length > 0 ? `(${variantInfo.join(', ')})` : '';
 
             return `${index + 1}. *${item.productName}* ${variantStr}\n` +

@@ -1,8 +1,17 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product } from '../types';
 import { SAMPLE_PRODUCTS } from '../data/products';
-import { db } from '../src/lib/firebase';
+import { db, auth } from '../src/lib/firebase';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc, onSnapshot } from 'firebase/firestore';
+import {
+    signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged,
+    User,
+    sendPasswordResetEmail,
+    updateEmail,
+    updatePassword
+} from 'firebase/auth';
 
 export interface HomeSettings {
     bannerImages: string[];
@@ -10,15 +19,18 @@ export interface HomeSettings {
 }
 
 export interface SystemSettings {
-    adminUsername: string;
-    adminPassword: string; // In a real app, this should be hashed/secure
+    adminUsername: string; // Kept for legacy/display, but Auth is validating
+    adminPassword: string; // Kept for legacy/display, but Auth is validating
     whatsappNumber: string;
 }
 
 interface AdminContextType {
     isAuthenticated: boolean;
-    login: (password: string) => boolean;
-    logout: () => void;
+    currentUser: User | null;
+    login: (email: string, password: string) => Promise<void>;
+    logout: () => Promise<void>;
+    resetPassword: (email: string) => Promise<void>;
+    updateAdminCredentials: (email?: string, password?: string) => Promise<void>;
     products: Product[];
     addProduct: (product: Product) => Promise<void>;
     updateProduct: (product: Product) => Promise<void>;
@@ -34,6 +46,7 @@ interface AdminContextType {
     clearAllProducts: () => Promise<void>;
     subCollections: Record<string, string[]>;
     updateSubCollections: (subs: Record<string, string[]>) => Promise<void>;
+    loadingAuth: boolean;
 }
 
 const DEFAULT_HOME_SETTINGS: HomeSettings = {
@@ -46,36 +59,47 @@ const DEFAULT_HOME_SETTINGS: HomeSettings = {
 };
 
 const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
-    adminUsername: 'admin',
-    adminPassword: 'admin123',
+    adminUsername: 'admin@bigbie.com',
+    adminPassword: '',
     whatsappNumber: ''
 };
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
 export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-        return localStorage.getItem('adminAuth') === 'true';
-    });
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+    const [loadingAuth, setLoadingAuth] = useState(true);
 
-    // Products now fetched from Firestore
+    // Listen to Firebase Auth state changes
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            setCurrentUser(user);
+            setIsAuthenticated(!!user);
+            setLoadingAuth(false);
+            if (user) {
+                localStorage.setItem('adminAuth', 'true');
+            } else {
+                localStorage.removeItem('adminAuth');
+            }
+        });
+        return unsubscribe;
+    }, []);
+
+    // Products
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
-
     const productsCollection = collection(db, 'products');
 
-    // Fetch Products from Firestore
+    // Fetch Products
     useEffect(() => {
         const fetchProducts = async () => {
             try {
                 const data = await getDocs(productsCollection);
                 const loadedProducts = data.docs.map(doc => ({ ...doc.data(), id: doc.id } as Product));
-
                 if (loadedProducts.length > 0) {
                     setProducts(loadedProducts);
                 } else {
-                    // Database is empty. We do NOT auto-migrate anymore.
-                    // If user wants to restore samples, they can use the button in Settings.
                     setProducts([]);
                 }
             } catch (error) {
@@ -84,56 +108,41 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 setLoading(false);
             }
         };
-
         fetchProducts();
     }, []);
 
-    // Settings still in LocalStorage for now (Phase 2 can move them to Firestore too)
+    // Settings
     const [homeSettings, setHomeSettings] = useState<HomeSettings>(() => {
         const savedSettings = localStorage.getItem('adminHomeSettings');
         return savedSettings ? JSON.parse(savedSettings) : DEFAULT_HOME_SETTINGS;
     });
 
-    const [systemSettings, setSystemSettings] = useState<SystemSettings>(() => {
-        const savedSettings = localStorage.getItem('adminSystemSettings');
-        return savedSettings ? JSON.parse(savedSettings) : DEFAULT_SYSTEM_SETTINGS;
-    });
+    const [systemSettings, setSystemSettings] = useState<SystemSettings>(DEFAULT_SYSTEM_SETTINGS);
 
     useEffect(() => {
         localStorage.setItem('adminHomeSettings', JSON.stringify(homeSettings));
     }, [homeSettings]);
 
-    // Fetch Sub-collections
+    // Load systemSettings from Firebase
     useEffect(() => {
-        const fetchSubCollections = async () => {
-            try {
-                const docRef = doc(db, 'settings', 'subCollections');
-                const snapshot = await getDocs(collection(db, 'settings')); // check if collection exists first or just get doc
-                // actually better to just get the specific doc
-                // But wait, getDoc is not imported. I need to check imports.
-                // imports: collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc, onSnapshot
-                // I don't see getDoc. I should use onSnapshot for real-time or getDoc if I import it.
-                // Let's use getDocs for now on a meaningful collection or just import getDoc.
-                // Actually, I can use onSnapshot for real-time updates which is nice.
-            } catch (e) {
-                console.error(e);
+        const unsubscribe = onSnapshot(doc(db, 'settings', 'system'), (docSnap) => {
+            if (docSnap.exists()) {
+                setSystemSettings(docSnap.data() as SystemSettings);
+            } else {
+                setDoc(doc(db, 'settings', 'system'), DEFAULT_SYSTEM_SETTINGS);
             }
-        };
+        });
+        return () => unsubscribe();
     }, []);
 
-    // Wait, I should do this properly. Let me rewrite the whole context part for subCollections.
-    // I need to import getDoc first if I want to use it, or continue using getDocs/onSnapshot.
-    // simpler:
-
+    // Sub-collections
     const [subCollections, setSubCollections] = useState<Record<string, string[]>>({});
 
     useEffect(() => {
-        // Real-time listener for sub-collections
         const unsubscribe = onSnapshot(doc(db, 'settings', 'categories'), (docSnap) => {
             if (docSnap.exists()) {
                 setSubCollections(docSnap.data() as Record<string, string[]>);
             } else {
-                // Initialize if empty
                 const initial = {
                     'Bras': ['Daily Wear', 'Sports', 'Bridal', 'Maternity'],
                     'Panties': ['Hipsters', 'Bikinis', 'Boy Shorts'],
@@ -144,53 +153,84 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 setSubCollections(initial);
             }
         });
-
         return () => unsubscribe();
     }, []);
 
     const updateSubCollections = async (subs: Record<string, string[]>) => {
         try {
             await setDoc(doc(db, 'settings', 'categories'), subs);
-            // State update happens via onSnapshot automatically
         } catch (error) {
             console.error("Error updating sub-collections:", error);
             alert("Failed to save changes.");
         }
     };
 
-    const login = (password: string) => {
-        if (password === systemSettings.adminPassword) {
-            setIsAuthenticated(true);
-            localStorage.setItem('adminAuth', 'true');
-            return true;
+    // --- Firebase Auth Functions ---
+
+    const login = async (email: string, password: string) => {
+        await signInWithEmailAndPassword(auth, email, password);
+    };
+
+    const logout = async () => {
+        await signOut(auth);
+    };
+
+    const resetPassword = async (email: string) => {
+        await sendPasswordResetEmail(auth, email);
+    };
+
+    const updateAdminCredentials = async (email?: string, password?: string) => {
+        if (!currentUser) throw new Error("No user logged in");
+
+        if (email && email !== currentUser.email) {
+            await updateEmail(currentUser, email);
         }
-        return false;
+
+        if (password) {
+            await updatePassword(currentUser, password);
+        }
     };
 
-    const logout = () => {
-        setIsAuthenticated(false);
-        localStorage.removeItem('adminAuth');
-    };
+    // --- Firebase Data Operations ---
 
-    // Firebase CRUD Operations
+    // [Preserve all Data Operations exactly as they were]
     const addProduct = async (product: Product) => {
         try {
-            // We use the product.id (slug-like) as the doc ID for consistency
-            await setDoc(doc(db, 'products', product.id), product);
-            setProducts(prev => [...prev, product]); // Optimistic update
+            const cleanProduct: any = { ...product };
+            Object.keys(cleanProduct).forEach(key => {
+                if (cleanProduct[key] === undefined) delete cleanProduct[key];
+            });
+            if (cleanProduct.imageGroups?.length === 0) delete cleanProduct.imageGroups;
+            if (cleanProduct.productColors?.length === 0) delete cleanProduct.productColors;
+            if (cleanProduct.productSizes?.length === 0) delete cleanProduct.productSizes;
+            if (cleanProduct.variantCombinations?.length === 0) delete cleanProduct.variantCombinations;
+
+            await setDoc(doc(db, 'products', product.id), cleanProduct);
+            setProducts(prev => [...prev, product]);
         } catch (error) {
             console.error("Error adding product:", error);
             alert("Failed to add product to database");
+            throw error;
         }
     };
 
     const updateProduct = async (updatedProduct: Product) => {
         try {
-            await updateDoc(doc(db, 'products', updatedProduct.id), updatedProduct as any);
+            const cleanProduct: any = { ...updatedProduct };
+            Object.keys(cleanProduct).forEach(key => {
+                if (cleanProduct[key] === undefined) delete cleanProduct[key];
+            });
+            if (cleanProduct.imageGroups?.length === 0) delete cleanProduct.imageGroups;
+            if (cleanProduct.productColors?.length === 0) delete cleanProduct.productColors;
+            if (cleanProduct.productSizes?.length === 0) delete cleanProduct.productSizes;
+            if (cleanProduct.variantCombinations?.length === 0) delete cleanProduct.variantCombinations;
+
+            await updateDoc(doc(db, 'products', updatedProduct.id), cleanProduct);
             setProducts(prev => prev.map(p => p.id === updatedProduct.id ? updatedProduct : p));
         } catch (error) {
             console.error("Error updating product:", error);
             alert("Failed to update product");
+            throw error;
         }
     };
 
@@ -210,23 +250,20 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     const updateSystemSettings = (settings: SystemSettings) => {
         setSystemSettings(settings);
+        setDoc(doc(db, 'settings', 'system'), settings);
     };
 
     const resetData = () => {
-        // Only clears local auth/settings. Does NOT wipe Firestore for safety.
         localStorage.removeItem('cart');
         alert('Local cache cleared. Database data remains safe.');
         window.location.reload();
     };
 
-    // MIGRATION: Upload sample data to Firestore
     const migrateData = async () => {
         if (!confirm("This will upload all sample products to the database. Continue?")) return;
-
         let count = 0;
         for (const p of SAMPLE_PRODUCTS) {
             try {
-                // Use setDoc with merge to avoid duplicates if re-run
                 await setDoc(doc(db, "products", p.id), p, { merge: true });
                 count++;
             } catch (e) {
@@ -237,10 +274,8 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         window.location.reload();
     };
 
-    // DANGER: Delete ALL products
     const clearAllProducts = async () => {
         if (!confirm("⚠️ WARNING: This will PERMANENTLY DELETE ALL PRODUCTS from the database.\n\nAre you sure?")) return;
-
         const confirm2 = prompt("Type 'DELETE' to confirm:");
         if (confirm2 !== 'DELETE') return;
 
@@ -249,7 +284,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             const snapshot = await getDocs(collection(db, 'products'));
             const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
             await Promise.all(deletePromises);
-            setProducts([]); // Clear local state immediately
+            setProducts([]);
             alert("All products have been deleted.");
         } catch (error) {
             console.error("Error clearing database:", error);
@@ -262,8 +297,11 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return (
         <AdminContext.Provider value={{
             isAuthenticated,
+            currentUser,
             login,
             logout,
+            resetPassword,
+            updateAdminCredentials,
             products,
             addProduct,
             updateProduct,
@@ -276,7 +314,8 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             migrateData,
             clearAllProducts,
             subCollections,
-            updateSubCollections
+            updateSubCollections,
+            loadingAuth
         }}>
             {children}
         </AdminContext.Provider>

@@ -35,6 +35,42 @@ export interface ProductVariant {
   inStock: boolean;
 }
 
+// NEW: Combination-based variant (size + color = one variant) for advanced variant management
+export interface VariantCombination {
+  id: string;
+  sku: string;              // Unique SKU for this combination
+  size: string;             // Required: e.g., "75cm", "80cm"
+  sizeLabel: string;        // Display label: "75 CM", "80 CM"
+  color: string;            // Required: hex code or color name
+  colorLabel: string;       // Display label: "Nude", "Black", "Red"
+  stock: number;            // Numeric stock count
+  price?: number;           // Optional price override for this combination
+  images?: string[];        // Optional color-specific images for this combination
+}
+
+// NEW: Color-First Workflow - Simplified color management
+export interface ProductColor {
+  id: string;
+  name: string;             // User-friendly name: "Red", "Black", "Nude"
+  value: string;            // Auto-generated hex code or slug for internal use
+  images: string[];         // Images for this color (uploaded once, used for all sizes)
+}
+
+// NEW: Color-First Workflow - Simplified size management
+export interface ProductSize {
+  id: string;
+  name: string;             // User-friendly name: "75 CM", "80 CM", "XL"
+  value: string;            // Auto-generated slug for internal use: "75cm", "80cm", "xl"
+}
+
+// NEW: Image-First Workflow - Visual color groups with images
+export interface ColorImageGroup {
+  id: string;
+  colorName: string;        // User-friendly name: "Red", "Black", "Purple"
+  colorValue: string;       // Auto-generated hex code for display
+  images: string[];         // All images for this color group
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -47,8 +83,19 @@ export interface Product {
   rating: number;
   reviewCount: number;
   images: string[]; // Product images
-  variants: ProductVariant[];
+  variants: ProductVariant[]; // Legacy: Simple independent variants
   createdAt?: string;
+
+  // NEW: Optional fields for advanced variant management
+  variantCombinations?: VariantCombination[]; // Advanced: Size+Color combinations with stock
+  imagesByColor?: Record<string, string[]>; // Map color values to image arrays
+
+  // NEW: Color-First Workflow fields
+  productColors?: ProductColor[]; // Simplified: Colors with images (upload once)
+  productSizes?: ProductSize[];   // Simplified: Available sizes
+
+  // NEW: Image-First Workflow (User's Superior Concept)
+  imageGroups?: ColorImageGroup[]; // Visual image library with color groups
 }
 
 export interface CartItem {
@@ -58,8 +105,11 @@ export interface CartItem {
   image: string;
   price: number;
   quantity: number;
+  variantCombinationId?: string; // NEW: Track specific size+color combination (for advanced variants)
   selectedVariants: {
     size?: string;
+    sizeLabel?: string; // Human-readable size label (e.g., "75 cm")
     color?: string;
+    colorLabel?: string; // Human-readable color label (e.g., "Red")
   };
 }

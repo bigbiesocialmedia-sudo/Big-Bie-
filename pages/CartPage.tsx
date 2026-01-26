@@ -64,8 +64,8 @@ const CartPage: React.FC = () => {
                                                     {item.productName}
                                                 </Link>
                                                 <div className="text-xs text-gray-500 mt-1 space-x-2">
-                                                    {item.selectedVariants.size && <span className="bg-gray-100 px-1.5 py-0.5 rounded">Size: {item.selectedVariants.size}</span>}
-                                                    {item.selectedVariants.color && <span className="bg-gray-100 px-1.5 py-0.5 rounded">Color: {item.selectedVariants.color}</span>}
+                                                    {item.selectedVariants.sizeLabel && <span className="bg-gray-100 px-1.5 py-0.5 rounded">Size: {item.selectedVariants.sizeLabel}</span>}
+                                                    {item.selectedVariants.colorLabel && <span className="bg-gray-100 px-1.5 py-0.5 rounded">Color: {item.selectedVariants.colorLabel}</span>}
                                                 </div>
                                             </div>
                                             <div className="text-sm sm:text-lg font-bold whitespace-nowrap">

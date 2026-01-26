@@ -36,8 +36,13 @@ const ContactUsPage: React.FC = () => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Get WhatsApp number from settings or use default
-        const whatsappNumber = systemSettings?.whatsappNumber || '918310306547';
+        // Get WhatsApp number from settings
+        const whatsappNumber = systemSettings?.whatsappNumber || '';
+
+        if (!whatsappNumber) {
+            alert('WhatsApp number is not configured. Please contact the administrator.');
+            return;
+        }
 
         // Create WhatsApp message
         const message = `*Contact Form Submission*\n\n*Name:* ${formData.name}\n*Email:* ${formData.email}\n*Phone:* ${formData.phone || 'Not provided'}\n*Subject:* ${formData.subject}\n\n*Message:*\n${formData.message}`;

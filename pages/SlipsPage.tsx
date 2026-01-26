@@ -14,7 +14,7 @@ const SlipsPage: React.FC = () => {
             <Header />
             <CollectionHero
                 title="Slips"
-                imageUrl="https://images.unsplash.com/photo-1485968579580-b6d095142e6e?auto=format&fit=crop&q=80&w=1920"
+                imageUrl="/Products/Slips.png"
                 bgColor="bg-[#D4C4B0]"
             />
             <ProductGrid category="Slips" products={slipsProducts} />
