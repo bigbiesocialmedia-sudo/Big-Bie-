@@ -83,9 +83,22 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     }
                 }
 
-                // Priority 4: Fallback to generic product images
+                // Priority 4: Legacy Variants (Fallback for old data)
+                if (!productImage && product.variants && product.variants.length > 0) {
+                    const firstVar = product.variants[0];
+                    if (firstVar.images && firstVar.images.length > 0) {
+                        productImage = firstVar.images[0];
+                    }
+                }
+
+                // Priority 5: Fallback to generic product images
                 if (!productImage && product.images && product.images.length > 0) {
                     productImage = product.images[0];
+                }
+
+                // Final Fallback if absolutely nothing found
+                if (!productImage) {
+                    productImage = 'https://placehold.co/100?text=No+Image';
                 }
 
                 const newItem: CartItem = {
