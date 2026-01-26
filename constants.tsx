@@ -47,5 +47,5 @@ export const CATEGORIES: Category[] = [
 import LogoImage from './Asset/Logo.png';
 
 export const Logo = ({ className }: { className?: string }) => (
-  <img src={LogoImage} alt="Big Bie Logo" className={`w-auto object-contain ${className || 'h-9'}`} />
+  <img src={LogoImage} alt="Big Bie Logo" className={`w-auto object-contain ${className || 'h-16'}`} />
 );
