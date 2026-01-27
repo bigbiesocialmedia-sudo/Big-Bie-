@@ -12,7 +12,7 @@ const Header: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 w-full z-50 bg-white py-4 shadow-sm border-b border-gray-100">
+    <header className="fixed top-0 w-full z-50 bg-[#F4C430] py-4 shadow-sm">
       <div className="container mx-auto px-6 flex items-center justify-between">
         {/* Left: Logo - positioned specifically like the screenshot */}
         <Link to="/" className="flex-shrink-0 cursor-pointer">
@@ -32,7 +32,7 @@ const Header: React.FC = () => {
 
             return (
               <div key={link.label} className="group relative">
-                <Link to={link.href} className="flex items-center text-lg font-medium tracking-wide text-black hover:text-[#F4C430] transition-colors py-2">
+                <Link to={link.href} className="flex items-center text-lg font-medium tracking-wide text-black hover:text-white transition-colors py-2">
                   {link.label}
                   {hasDropdown && <ChevronDown size={16} className="ml-1 group-hover:rotate-180 transition-transform duration-300 opacity-70" />}
                 </Link>
@@ -68,12 +68,12 @@ const Header: React.FC = () => {
         {/* Right: Icons */}
         <div className="flex items-center space-x-8 text-black">
 
-          <button className="hover:text-[#F4C430] transition-transform hover:scale-110"><Search size={24} strokeWidth={1.5} /></button>
-          <button className="hover:text-[#F4C430] transition-transform hover:scale-110 relative">
+          <button className="hover:text-white transition-transform hover:scale-110"><Search size={24} strokeWidth={1.5} /></button>
+          <button className="hover:text-white transition-transform hover:scale-110 relative">
             <Link to="/cart">
               <ShoppingCart size={24} strokeWidth={1.5} />
               {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-[#F4C430] text-black text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-md">
+                <span className="absolute -top-2 -right-2 bg-black text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-md">
                   {cartCount}
                 </span>
               )}
