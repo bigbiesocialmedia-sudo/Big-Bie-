@@ -17,6 +17,7 @@ export interface Category {
   title: string;
   image: string;
   href: string;
+  objectPosition?: string; // Optional: 'top', 'center', 'bottom', 'left', 'right' or specific values
 }
 
 export interface FeatureIcon {

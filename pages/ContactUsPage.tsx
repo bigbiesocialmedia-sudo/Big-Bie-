@@ -36,8 +36,8 @@ const ContactUsPage: React.FC = () => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Get WhatsApp number from settings
-        const whatsappNumber = systemSettings?.whatsappNumber || '';
+        // Get WhatsApp number from settings (Prioritize Official Number for Inquiries)
+        const whatsappNumber = systemSettings?.officialNumber || systemSettings?.whatsappNumber || '';
 
         if (!whatsappNumber) {
             alert('WhatsApp number is not configured. Please contact the administrator.');
@@ -51,7 +51,8 @@ const ContactUsPage: React.FC = () => {
         const encodedMessage = encodeURIComponent(message);
 
         // Create WhatsApp URL
-        const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+        const cleanPhone = whatsappNumber.replace(/\D/g, '');
+        const whatsappURL = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
 
         // Redirect to WhatsApp
         window.open(whatsappURL, '_blank');

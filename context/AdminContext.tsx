@@ -16,12 +16,14 @@ import {
 export interface HomeSettings {
     bannerImages: string[];
     featuredProductIds: string[];
+    heroImages?: string[]; // Added: For the Hero Section Slider
 }
 
 export interface SystemSettings {
     adminUsername: string; // Kept for legacy/display, but Auth is validating
     adminPassword: string; // Kept for legacy/display, but Auth is validating
-    whatsappNumber: string;
+    whatsappNumber: string; // For Orders
+    officialNumber?: string; // For Dealership/Careers/Inquiries
 }
 
 interface AdminContextType {
@@ -48,14 +50,20 @@ interface AdminContextType {
     updateSubCollections: (subs: Record<string, string[]>) => Promise<void>;
     loadingAuth: boolean;
 }
-
 const DEFAULT_HOME_SETTINGS: HomeSettings = {
     bannerImages: [
         'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&q=80&w=2400',
         'https://images.unsplash.com/photo-1596462502278-27bfad4575a6?auto=format&fit=crop&q=80&w=2400',
         'https://images.unsplash.com/photo-1620799140408-ed5341cd2431?auto=format&fit=crop&q=80&w=2400'
     ],
-    featuredProductIds: ['rose-camisole-slip', 'royal-panty', 'product-1']
+    featuredProductIds: ['rose-camisole-slip', 'royal-panty', 'product-1'],
+    heroImages: [
+        'https://images.unsplash.com/photo-1616486029423-aaa478965c96?auto=format&fit=crop&q=80&w=800',
+        'https://images.unsplash.com/photo-1596462502278-27bfad4575a6?auto=format&fit=crop&q=80&w=800',
+        'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&q=80&w=800',
+        'https://images.unsplash.com/photo-1585670210693-e7fdd16b142e?auto=format&fit=crop&q=80&w=800',
+        'https://images.unsplash.com/photo-1550614000-4b9519e0037a?auto=format&fit=crop&q=80&w=800'
+    ]
 };
 
 const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {

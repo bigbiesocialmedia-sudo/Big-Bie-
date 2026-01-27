@@ -12,11 +12,13 @@ const SettingsPage: React.FC = () => {
 
     // Local state for form inputs
     const [whatsappNumber, setWhatsappNumber] = useState(systemSettings.whatsappNumber);
+    const [officialNumber, setOfficialNumber] = useState(systemSettings.officialNumber || '');
     const [loading, setLoading] = useState(false);
 
     // Sync local state when Firebase loads settings/user
     useEffect(() => {
         setWhatsappNumber(systemSettings.whatsappNumber);
+        setOfficialNumber(systemSettings.officialNumber || '');
     }, [systemSettings]);
 
     const handleSave = async () => {
@@ -25,7 +27,8 @@ const SettingsPage: React.FC = () => {
             // Update WhatsApp (Firestore)
             updateSystemSettings({
                 ...systemSettings,
-                whatsappNumber
+                whatsappNumber,
+                officialNumber
             });
 
             alert('System settings saved successfully!');
@@ -53,16 +56,32 @@ const SettingsPage: React.FC = () => {
                         Set up contact details for customer support.
                     </p>
 
-                    <div>
-                        <label className="block text-sm font-medium mb-1">WhatsApp Number</label>
-                        <input
-                            type="text"
-                            placeholder="Enter WhatsApp number with country code"
-                            className="w-full border p-2 rounded-lg"
-                            value={whatsappNumber}
-                            onChange={e => setWhatsappNumber(e.target.value)}
-                        />
-                        <p className="text-xs text-gray-400 mt-1">Include country code without spaces or dashes for best results.</p>
+                    <div className="space-y-6">
+                        {/* Order Number */}
+                        <div>
+                            <label className="block text-sm font-bold text-gray-800 mb-1">Order Receiving WhatsApp Number</label>
+                            <p className="text-xs text-gray-500 mb-2">Used for: Checkout, Order Confirmation, Cart Inquiries.</p>
+                            <input
+                                type="text"
+                                placeholder="e.g. 919876543210"
+                                className="w-full border p-2 rounded-lg"
+                                value={whatsappNumber}
+                                onChange={e => setWhatsappNumber(e.target.value)}
+                            />
+                        </div>
+
+                        {/* Official Inquiry Number */}
+                        <div>
+                            <label className="block text-sm font-bold text-gray-800 mb-1">Official / Dealership WhatsApp Number</label>
+                            <p className="text-xs text-gray-500 mb-2">Used for: Dealership Forms, Hiring/Careers, General Inquiries.</p>
+                            <input
+                                type="text"
+                                placeholder="e.g. 919876543210"
+                                className="w-full border p-2 rounded-lg"
+                                value={officialNumber}
+                                onChange={e => setOfficialNumber(e.target.value)}
+                            />
+                        </div>
                     </div>
                 </section>
 

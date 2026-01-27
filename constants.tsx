@@ -15,7 +15,8 @@ export const NAV_LINKS: NavItem[] = [
     href: '#',
     dropdown: [
       { label: 'Our Story', href: '/about/our-story' },
-      { label: 'Deals', href: '/about/deals' },
+      { label: 'Dealership', href: '/about/deals' },
+      { label: 'Careers', href: '/about/careers' },
       { label: 'Contact Us', href: '/about/contact-us' }
     ]
   },
@@ -24,22 +25,23 @@ export const NAV_LINKS: NavItem[] = [
 export const CATEGORIES: Category[] = [
   {
     title: 'Bras',
-    image: '/Products/Home Collection/Bra.png',
+    image: 'https://i.pinimg.com/736x/8f/b5/72/8fb572931b93c3424d0a3955da3c989b.jpg',
     href: '/collections/bras',
   },
   {
     title: 'Kids',
-    image: '/Products/Home Collection/Kids.png',
+    image: 'https://i.pinimg.com/1200x/44/1e/a7/441ea7e1f619e256a3d68ab3140f3319.jpg',
     href: '/collections/kids',
   },
   {
     title: 'Panties',
-    image: '/Products/Home Collection/Panties.png',
+    image: 'https://i.pinimg.com/1200x/31/8d/a5/318da51432b723697579e5092b899161.jpg',
     href: '/collections/panties',
+    objectPosition: 'object-bottom', // Adjust image alignment
   },
   {
     title: 'Slips',
-    image: '/Products/Home Collection/Slips.png',
+    image: 'https://i.pinimg.com/736x/bf/57/1d/bf571d631b6abe2ce3b315976c0fa573.jpg',
     href: '/collections/slips',
   },
 ];

@@ -42,7 +42,11 @@ const Header: React.FC = () => {
                       // Check if sub is a DropdownItem object or a string
                       const isObject = typeof sub === 'object' && sub !== null && 'href' in sub;
                       const label = isObject ? (sub as any).label : sub;
-                      const href = isObject ? (sub as any).href : '#';
+                      let href = isObject ? (sub as any).href : '#';
+
+                      if (!isObject && typeof sub === 'string') {
+                        href = `${link.href}?type=${encodeURIComponent(sub)}`;
+                      }
 
                       return (
                         <Link
@@ -114,7 +118,11 @@ const Header: React.FC = () => {
                           // Check if sub is a DropdownItem object or a string
                           const isObject = typeof sub === 'object' && sub !== null && 'href' in sub;
                           const label = isObject ? (sub as any).label : sub;
-                          const href = isObject ? (sub as any).href : '#';
+                          let href = isObject ? (sub as any).href : '#';
+
+                          if (!isObject && typeof sub === 'string') {
+                            href = `${link.href}?type=${encodeURIComponent(sub)}`;
+                          }
 
                           return (
                             <Link

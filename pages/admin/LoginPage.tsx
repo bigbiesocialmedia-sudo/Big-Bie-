@@ -225,7 +225,7 @@ const LoginPage: React.FC = () => {
 
                 <div className="mt-6 pt-6 border-t border-gray-200">
                     <p className="text-center text-xs text-gray-500">
-                        🔒 Secure admin access - Firebase Auth Protected
+                        {/* Footer text removed as requested */}
                     </p>
                 </div>
             </div>

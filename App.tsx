@@ -3,6 +3,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import ScrollToTop from './components/ScrollToTop';
+import WhatsAppButton from './components/WhatsAppButton';
 import Hero from './components/Hero';
 import FeaturedCollection from './components/FeaturedCollection';
 import CategoryGrid from './components/CategoryGrid';
@@ -19,6 +20,7 @@ import CheckoutPage from './pages/CheckoutPage';
 import OurStoryPage from './pages/OurStoryPage';
 import DealsPage from './pages/DealsPage';
 import ContactUsPage from './pages/ContactUsPage';
+import CareersPage from './pages/CareersPage';
 import LegalPage from './pages/LegalPage';
 import Header from './components/Header';
 // Admin Imports
@@ -40,8 +42,8 @@ const HomePage: React.FC = () => {
       <Header />
       <main>
         <Hero />
-        <FeaturedCollection />
         <CategoryGrid />
+        <FeaturedCollection />
         <StorySection />
         <WhyChooseSection />
       </main>
@@ -56,6 +58,7 @@ const App: React.FC = () => {
       <AdminProvider>
         <div className="relative min-h-screen">
           <ScrollToTop />
+          <WhatsAppButton />
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/collections/bras" element={<BrasPage />} />
@@ -69,7 +72,9 @@ const App: React.FC = () => {
             {/* About Section Routes */}
             <Route path="/about/our-story" element={<OurStoryPage />} />
             <Route path="/about/deals" element={<DealsPage />} />
+
             <Route path="/about/contact-us" element={<ContactUsPage />} />
+            <Route path="/about/careers" element={<CareersPage />} />
 
             {/* Legal Page */}
             <Route path="/legal" element={<LegalPage />} />

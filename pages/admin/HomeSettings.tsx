@@ -7,23 +7,35 @@ const HomeSettings: React.FC = () => {
     const [featuredProductIds, setFeaturedProductIds] = useState<string[]>(homeSettings.featuredProductIds);
     const [productSearch, setProductSearch] = useState('');
 
+    // Add Image State
+    const [isAddingImage, setIsAddingImage] = useState(false);
+    const [newImageUrl, setNewImageUrl] = useState('');
+
     const handleSave = () => {
         updateHomeSettings({
             bannerImages: homeSettings.bannerImages,
-            featuredProductIds
+            featuredProductIds,
+            heroImages: homeSettings.heroImages
         });
         alert('Home settings saved successfully!');
     };
 
+    const handleAddImage = () => {
+        if (!newImageUrl.trim()) return;
+        const currentImages = homeSettings.heroImages || [];
+        updateHomeSettings({
+            ...homeSettings,
+            heroImages: [...currentImages, newImageUrl.trim()]
+        });
+        setNewImageUrl('');
+        setIsAddingImage(false);
+    };
 
+    // ... (rest of the file until the Hero Section Images part)
 
     // Featured Product Handlers
     const handleSelectProduct = (productId: string) => {
         if (featuredProductIds.includes(productId)) return;
-        if (featuredProductIds.length >= 4) {
-            alert('You can only select up to 4 featured products.');
-            return;
-        }
         setFeaturedProductIds([...featuredProductIds, productId]);
     };
 
@@ -49,6 +61,8 @@ const HomeSettings: React.FC = () => {
         }
     }, [products, featuredProductIds]);
 
+    // ... (GetProductImage helper)
+
     const getProductImage = (product: any) => {
         // 1. Global Image
         if (product.images && product.images.length > 0) return product.images[0];
@@ -65,11 +79,83 @@ const HomeSettings: React.FC = () => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto pb-20">
+        <div className="max-w-4xl mx-auto pb-20 relative">
+            {/* Custom Image Input Modal */}
+            {isAddingImage && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl">
+                        <h3 className="text-xl font-bold mb-4">Add New Image</h3>
+                        <input
+                            type="text"
+                            placeholder="Enter image URL (e.g., https://...)"
+                            className="w-full border border-gray-300 rounded-lg px-4 py-3 mb-4 focus:ring-2 focus:ring-black focus:border-transparent outline-none"
+                            value={newImageUrl}
+                            onChange={(e) => setNewImageUrl(e.target.value)}
+                            autoFocus
+                        />
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => setIsAddingImage(false)}
+                                className="px-5 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleAddImage}
+                                className="px-5 py-2 bg-black text-white font-medium rounded-lg hover:bg-gray-800 transition-colors"
+                            >
+                                Add Image
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <h1 className="text-3xl font-bold mb-8">Home Customization</h1>
 
             <div className="space-y-8">
 
+
+                {/* Hero Slider Images */}
+                <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div className="flex items-center gap-2 mb-4">
+                        <Star className="text-[#F4C430]" />
+                        <h2 className="text-xl font-semibold">Hero Section Images</h2>
+                    </div>
+                    <p className="text-sm text-gray-500 mb-6">
+                        Manage the auto-sliding images in the Hero section (Max 5 images).
+                    </p>
+
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                        {homeSettings.heroImages?.map((img, idx) => (
+                            <div key={idx} className="relative group aspect-[4/5] rounded-lg overflow-hidden border border-gray-200">
+                                <img src={img} alt={`Hero ${idx}`} className="w-full h-full object-cover" />
+                                <button
+                                    onClick={() => {
+                                        const newImages = homeSettings.heroImages?.filter((_, i) => i !== idx) || [];
+                                        updateHomeSettings({ ...homeSettings, heroImages: newImages });
+                                    }}
+                                    className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                    <Trash2 size={14} />
+                                </button>
+                            </div>
+                        ))}
+                        {(homeSettings.heroImages?.length || 0) < 5 && (
+                            <div className="aspect-[4/5] rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 hover:border-[#F4C430] hover:text-[#F4C430] transition-colors bg-gray-50 cursor-pointer"
+                                onClick={() => {
+                                    setNewImageUrl('');
+                                    setIsAddingImage(true);
+                                }}
+                            >
+                                <div className="flex flex-col items-center gap-2">
+                                    <Plus size={24} />
+                                    <span className="text-xs font-medium">Add Image</span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </section>
 
                 {/* Featured Products */}
                 <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
@@ -78,12 +164,12 @@ const HomeSettings: React.FC = () => {
                         <h2 className="text-xl font-semibold">Featured Products</h2>
                     </div>
                     <p className="text-sm text-gray-500 mb-6">
-                        Select products to display in the "Featured Collection" section. Maximum 4 products.
+                        Select products to display in the "Featured Collection" section.
                     </p>
 
                     {/* Selected Products */}
                     <div className="mb-6">
-                        <h3 className="text-sm font-medium mb-3">Selected Products ({validFeaturedProducts.length}/4)</h3>
+                        <h3 className="text-sm font-medium mb-3">Selected Products ({validFeaturedProducts.length})</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             {validFeaturedProducts.map(product => (
                                 <div key={product.id} className="flex items-center justify-between p-3 border border-[#F4C430] bg-[#FFFBE6] rounded-lg">
@@ -155,11 +241,7 @@ const HomeSettings: React.FC = () => {
                                         ) : (
                                             <button
                                                 onClick={() => handleSelectProduct(product.id)}
-                                                disabled={validFeaturedProducts.length >= 4}
-                                                className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${validFeaturedProducts.length >= 4
-                                                    ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                                                    : 'bg-white text-black border-black hover:bg-black hover:text-white'
-                                                    }`}
+                                                className="text-xs px-3 py-1.5 rounded-full border transition-colors bg-white text-black border-black hover:bg-black hover:text-white"
                                             >
                                                 Add
                                             </button>

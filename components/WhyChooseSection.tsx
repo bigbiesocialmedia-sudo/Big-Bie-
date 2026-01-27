@@ -28,21 +28,33 @@ const FEATURES = [
 
 const WhyChooseSection: React.FC = () => {
   return (
-    <section className="py-24 bg-white">
-      <div className="container mx-auto px-6">
-        <div className="text-center mb-16">
-          <motion.h2
+    <section className="py-24 relative overflow-hidden bg-gray-50">
+      {/* Background with parallax-like feel */}
+      <div className="absolute inset-0 z-0 opacity-5">
+        <img
+          src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&q=80&w=2000"
+          alt="Pattern Background"
+          className="w-full h-full object-cover"
+        />
+      </div>
+
+      <div className="container mx-auto px-6 relative z-10">
+        <div className="text-center mb-20">
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl font-bold uppercase tracking-widest text-[#1A1A1A]"
+            className="inline-block"
           >
-            Why Choose Big Bie?
-          </motion.h2>
-          <div className="w-20 h-1 bg-[#F4C430] mx-auto mt-4"></div>
+            <span className="text-[#F4C430] font-bold tracking-[0.2em] uppercase text-sm mb-4 block">Our Promise</span>
+            <h2 className="text-4xl lg:text-5xl font-black text-[#1A1A1A] mb-6">
+              Why Choose Big Bie?
+            </h2>
+            <div className="w-24 h-1.5 bg-[#F4C430] mx-auto rounded-full"></div>
+          </motion.div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {FEATURES.map((feature, idx) => (
             <motion.div
               key={feature.title}
@@ -50,13 +62,22 @@ const WhyChooseSection: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1 }}
               viewport={{ once: true }}
-              className="flex flex-col items-center text-center p-8 hover:shadow-2xl transition-shadow duration-300 rounded-xl"
+              className="bg-white p-10 rounded-3xl shadow-lg border border-gray-100 hover:border-[#F4C430]/30 hover:shadow-2xl transition-all duration-500 group"
             >
-              <div className="mb-6 bg-gray-50 p-6 rounded-full">
-                {feature.icon}
+              <div className="mb-8 relative">
+                <div className="absolute -inset-2 bg-[#F4C430]/20 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="relative bg-black text-white p-4 rounded-2xl w-fit group-hover:bg-[#F4C430] group-hover:text-black transition-colors duration-300">
+                  {React.cloneElement(feature.icon as React.ReactElement, { className: "group-hover:text-white" })}
+                </div>
               </div>
-              <h3 className="text-xl font-bold mb-4 uppercase tracking-wide">{feature.title}</h3>
-              <p className="text-gray-500 leading-relaxed">{feature.description}</p>
+
+              <h3 className="text-2xl font-bold mb-4 text-[#1A1A1A] group-hover:text-[#F4C430] transition-colors duration-300">
+                {feature.title}
+              </h3>
+
+              <p className="text-gray-500 leading-relaxed text-sm font-medium">
+                {feature.description}
+              </p>
             </motion.div>
           ))}
         </div>
