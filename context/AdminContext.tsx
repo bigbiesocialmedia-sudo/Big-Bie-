@@ -120,16 +120,21 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }, []);
 
     // Settings
-    const [homeSettings, setHomeSettings] = useState<HomeSettings>(() => {
-        const savedSettings = localStorage.getItem('adminHomeSettings');
-        return savedSettings ? JSON.parse(savedSettings) : DEFAULT_HOME_SETTINGS;
-    });
+    const [homeSettings, setHomeSettings] = useState<HomeSettings>(DEFAULT_HOME_SETTINGS);
 
     const [systemSettings, setSystemSettings] = useState<SystemSettings>(DEFAULT_SYSTEM_SETTINGS);
 
+    // Load homeSettings from Firebase
     useEffect(() => {
-        localStorage.setItem('adminHomeSettings', JSON.stringify(homeSettings));
-    }, [homeSettings]);
+        const unsubscribe = onSnapshot(doc(db, 'settings', 'home'), (docSnap) => {
+            if (docSnap.exists()) {
+                setHomeSettings(docSnap.data() as HomeSettings);
+            } else {
+                setDoc(doc(db, 'settings', 'home'), DEFAULT_HOME_SETTINGS);
+            }
+        });
+        return () => unsubscribe();
+    }, []);
 
     // Load systemSettings from Firebase
     useEffect(() => {
@@ -254,6 +259,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     const updateHomeSettings = (settings: HomeSettings) => {
         setHomeSettings(settings);
+        setDoc(doc(db, 'settings', 'home'), settings);
     };
 
     const updateSystemSettings = (settings: SystemSettings) => {
