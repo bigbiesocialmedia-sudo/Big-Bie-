@@ -14,7 +14,7 @@ const KidsPage: React.FC = () => {
             <Header />
             <CollectionHero
                 title="Kids"
-                imageUrl="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&q=80&w=1920"
+                imageUrl="/Products/kids.jpg"
                 bgColor="bg-[#F4C430]"
             />
             <ProductGrid category="Kids" products={kidsProducts} />

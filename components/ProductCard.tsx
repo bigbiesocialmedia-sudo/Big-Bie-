@@ -90,6 +90,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
         navigate(`/products/${product.slug}`);
     };
 
+    const [isHovered, setIsHovered] = useState(false);
+
+    // Auto-slide effect
+    React.useEffect(() => {
+        if (!isHovered && images.length > 1) {
+            const interval = setInterval(() => {
+                setCurrentImageIndex((prev) => (prev + 1) % images.length);
+            }, 5000); // Slide every 5 seconds
+            return () => clearInterval(interval);
+        }
+    }, [isHovered, images.length]);
+
     // If "Minimal" mode is requested (e.g. for simple grids), we can revert to simple view or use this new one.
     // For now, let's standardize on the new "Nike" look for everyone unless specifically requested otherwise.
 
@@ -99,6 +111,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="bg-white rounded-xl md:rounded-[32px] p-2 md:p-4 shadow-sm hover:shadow-xl transition-all duration-300 group border border-gray-100 relative overflow-hidden flex flex-col h-full"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
         >
             {/* 1. Image Area (Top) */}
             <div className="relative aspect-[4/5] rounded-lg md:rounded-[24px] overflow-hidden bg-gray-100 mb-2 md:mb-4 isolate">
@@ -106,25 +120,20 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 {/* Badge (Optional: Randomize or check logic) */}
                 {/* Badge Removed by User Request */}
 
-                {/* Wishlist/Brand Icon */}
-                <div className="absolute top-4 right-4 z-20">
-                    <button className="bg-white/80 p-2 rounded-full hover:bg-white transition-colors backdrop-blur-sm">
-                        <Heart size={16} className="text-gray-700" />
-                    </button>
-                </div>
+                {/* Wishlist Button Removed by User Request */}
 
                 {/* Image Carousel */}
                 <div className="w-full h-full relative group/image">
                     <Link to={`/products/${product.slug}`} className="block w-full h-full">
-                        <AnimatePresence mode="wait">
+                        <AnimatePresence mode="popLayout" initial={false}>
                             <motion.img
                                 key={currentImageIndex}
                                 src={images[currentImageIndex]}
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.3 }}
-                                className="w-full h-full object-cover"
+                                initial={{ x: '100%' }}
+                                animate={{ x: 0 }}
+                                exit={{ x: '-100%' }}
+                                transition={{ type: "tween", ease: "easeInOut", duration: 0.5 }}
+                                className="w-full h-full object-cover absolute inset-0"
                                 alt={product.name}
                             />
                         </AnimatePresence>
