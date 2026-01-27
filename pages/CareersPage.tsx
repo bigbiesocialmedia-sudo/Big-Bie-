@@ -74,7 +74,7 @@ const CareersPage: React.FC = () => {
     return (
         <>
             <Header />
-            <main className="min-h-screen bg-white pt-20">
+            <main className="min-h-screen bg-white pt-32">
                 {/* Hero Section */}
                 <div className="bg-black text-white py-20">
                     <div className="container mx-auto px-6 max-w-4xl text-center">

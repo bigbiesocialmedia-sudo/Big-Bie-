@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Product } from '../types';
+import { Product, ShippingRule } from '../types';
 import { SAMPLE_PRODUCTS } from '../data/products';
 import { db, auth } from '../src/lib/firebase';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc, onSnapshot } from 'firebase/firestore';
@@ -49,6 +49,8 @@ interface AdminContextType {
     subCollections: Record<string, string[]>;
     updateSubCollections: (subs: Record<string, string[]>) => Promise<void>;
     loadingAuth: boolean;
+    shippingRules: ShippingRule[];
+    updateShippingRules: (rules: ShippingRule[]) => Promise<void>;
 }
 const DEFAULT_HOME_SETTINGS: HomeSettings = {
     bannerImages: [
@@ -168,6 +170,30 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         });
         return () => unsubscribe();
     }, []);
+
+    // Shipping Rules
+    const [shippingRules, setShippingRules] = useState<ShippingRule[]>([]);
+
+    useEffect(() => {
+        const unsubscribe = onSnapshot(doc(db, 'settings', 'shipping'), (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                setShippingRules(data.rules || []);
+            } else {
+                setDoc(doc(db, 'settings', 'shipping'), { rules: [] });
+            }
+        });
+        return () => unsubscribe();
+    }, []);
+
+    const updateShippingRules = async (rules: ShippingRule[]) => {
+        try {
+            await setDoc(doc(db, 'settings', 'shipping'), { rules });
+        } catch (error) {
+            console.error("Error updating shipping rules:", error);
+            alert("Failed to save shipping changes.");
+        }
+    };
 
     const updateSubCollections = async (subs: Record<string, string[]>) => {
         try {
@@ -329,7 +355,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             clearAllProducts,
             subCollections,
             updateSubCollections,
-            loadingAuth
+            loadingAuth,
+            shippingRules,
+            updateShippingRules
         }}>
             {children}
         </AdminContext.Provider>

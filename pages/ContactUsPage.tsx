@@ -70,7 +70,7 @@ const ContactUsPage: React.FC = () => {
     return (
         <>
             <Header />
-            <main className="min-h-screen bg-white pt-24">
+            <main className="min-h-screen bg-white pt-32">
                 <div className="container mx-auto px-6 max-w-5xl py-8">
                     <h1 className="text-4xl md:text-5xl font-bold text-black mb-8">Contact Us</h1>
 

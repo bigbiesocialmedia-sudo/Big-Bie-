@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../context/AdminContext';
-import { LayoutDashboard, Package, Settings, LogOut, House, Layers } from 'lucide-react';
+import { LayoutDashboard, Package, Settings, LogOut, House, Layers, Truck } from 'lucide-react';
 
 const AdminLayout: React.FC = () => {
     const { logout } = useAdmin();
@@ -17,6 +17,7 @@ const AdminLayout: React.FC = () => {
         { label: 'Dashboard', icon: LayoutDashboard, href: '/admin/dashboard' },
         { label: 'Inventory', icon: Package, href: '/admin/inventory' },
         { label: 'Collections', icon: Layers, href: '/admin/collections' },
+        { label: 'Shipping', icon: Truck, href: '/admin/shipping' },
         { label: 'Home Settings', icon: House, href: '/admin/home-settings' },
         { label: 'System Settings', icon: Settings, href: '/admin/settings' },
     ];

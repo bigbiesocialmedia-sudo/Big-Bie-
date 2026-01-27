@@ -34,6 +34,7 @@ import InventoryList from './pages/admin/InventoryList';
 import ProductForm from './pages/admin/ProductForm';
 import SettingsPage from './pages/admin/SettingsPage';
 import HomeSettings from './pages/admin/HomeSettings';
+import ShippingPage from './pages/admin/ShippingPage';
 import { Navigate } from 'react-router-dom';
 
 const HomePage: React.FC = () => {
@@ -54,8 +55,8 @@ const HomePage: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <CartProvider>
-      <AdminProvider>
+    <AdminProvider>
+      <CartProvider>
         <div className="relative min-h-screen">
           <ScrollToTop />
           <WhatsAppButton />
@@ -90,13 +91,14 @@ const App: React.FC = () => {
                 <Route path="inventory/edit/:id" element={<ProductForm />} />
                 <Route path="settings" element={<SettingsPage />} />
                 <Route path="home-settings" element={<HomeSettings />} />
+                <Route path="shipping" element={<ShippingPage />} />
                 <Route index element={<Navigate to="dashboard" replace />} />
               </Route>
             </Route>
           </Routes>
         </div>
-      </AdminProvider>
-    </CartProvider>
+      </CartProvider>
+    </AdminProvider>
   );
 };
 

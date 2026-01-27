@@ -46,7 +46,7 @@ Expected Volume: ${formData.volume}
     return (
         <>
             <Header />
-            <main className="min-h-screen bg-white pt-20">
+            <main className="min-h-screen bg-white pt-32">
                 {/* Hero Section */}
                 <div className="relative bg-black text-white py-20 lg:py-32 overflow-hidden">
                     <img

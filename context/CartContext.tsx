@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { CartItem, ProductVariant } from '../types';
+import { CartItem, ProductVariant, ShippingRule } from '../types';
+import { useAdmin } from './AdminContext';
 
 interface CartContextType {
     cartItems: CartItem[];
@@ -9,6 +10,7 @@ interface CartContextType {
     updateQuantity: (productId: string, quantity: number, size?: string, color?: string) => void;
     clearCart: () => void;
     cartTotal: number;
+    shippingTotal: number;
     cartCount: number;
 }
 
@@ -148,8 +150,21 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setCartItems([]);
     };
 
+    const { shippingRules } = useAdmin();
+
     const cartTotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
     const cartCount = cartItems.reduce((count, item) => count + item.quantity, 0);
+
+    const shippingTotal = React.useMemo(() => {
+        if (!shippingRules || shippingRules.length === 0) return 0;
+        // Find rule where cartCount is within [min, max] range
+        const rule = shippingRules.find(r => cartCount >= r.minQuantity && cartCount <= r.maxQuantity);
+        if (rule) return rule.amount;
+
+        // Fallback: If no direct match, check if it's below the lowest or above the highest
+        if (cartCount < shippingRules[0].minQuantity) return 0; // Or define fallback
+        return shippingRules[shippingRules.length - 1].amount;
+    }, [cartCount, shippingRules]);
 
     return (
         <CartContext.Provider
@@ -160,6 +175,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 updateQuantity,
                 clearCart,
                 cartTotal,
+                shippingTotal,
                 cartCount,
             }}
         >

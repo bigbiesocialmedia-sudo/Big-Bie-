@@ -114,3 +114,10 @@ export interface CartItem {
     colorLabel?: string; // Human-readable color label (e.g., "Red")
   };
 }
+
+export interface ShippingRule {
+  id: string;
+  minQuantity: number;
+  maxQuantity: number;
+  amount: number;
+}

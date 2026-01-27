@@ -6,7 +6,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const CheckoutPage: React.FC = () => {
-    const { cartItems, cartTotal, clearCart } = useCart();
+    const { cartItems, cartTotal, shippingTotal, clearCart } = useCart();
     const { systemSettings } = useAdmin(); // Get settings from AdminContext
     const navigate = useNavigate();
 
@@ -69,7 +69,9 @@ const CheckoutPage: React.FC = () => {
             `--------------------------------\n` +
             `${productDetails}\n` +
             `--------------------------------\n` +
-            `*Total Amount: Rs. ${cartTotal.toFixed(2)}*`;
+            `Subtotal: Rs. ${cartTotal.toFixed(2)}\n` +
+            `Shipping: ${shippingTotal > 0 ? `Rs. ${shippingTotal.toFixed(2)}` : 'FREE'}\n` +
+            `*Total Amount: Rs. ${(cartTotal + shippingTotal).toFixed(2)}*`;
 
         // 4. Redirect to WhatsApp
         const whatsappUrl = `https://wa.me/${merchantPhone}?text=${encodeURIComponent(messageText)}`;
@@ -84,8 +86,8 @@ const CheckoutPage: React.FC = () => {
         <div className="min-h-screen bg-gray-50">
             <Header />
 
-            <main className="container mx-auto px-4 py-8 mb-12">
-                <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-sm p-6 md:p-8 mt-10">
+            <main className="container mx-auto px-4 pt-32 pb-12">
+                <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-sm p-6 md:p-8">
                     <h1 className="text-2xl font-bold mb-6 text-center">Checkout</h1>
 
                     <form onSubmit={handleWhatsAppRedirect} className="space-y-6">
@@ -179,12 +181,18 @@ const CheckoutPage: React.FC = () => {
                         <div className="bg-gray-50 p-4 rounded-md">
                             <h3 className="font-semibold mb-2">Order Summary</h3>
                             <div className="flex justify-between text-sm mb-1">
-                                <span>Total Quantity:</span>
-                                <span>{cartItems.reduce((acc, item) => acc + item.quantity, 0)} Items</span>
-                            </div>
-                            <div className="flex justify-between font-bold text-lg">
-                                <span>Total Amount:</span>
+                                <span>Cart Subtotal:</span>
                                 <span>Rs. {cartTotal.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between text-sm mb-1">
+                                <span>Shipping:</span>
+                                <span className={shippingTotal === 0 ? "text-green-600 font-semibold" : ""}>
+                                    {shippingTotal > 0 ? `Rs. ${shippingTotal.toFixed(2)}` : 'FREE'}
+                                </span>
+                            </div>
+                            <div className="flex justify-between font-bold text-lg pt-2 border-t mt-2">
+                                <span>Total Amount:</span>
+                                <span>Rs. {(cartTotal + shippingTotal).toFixed(2)}</span>
                             </div>
                         </div>
 

@@ -7,7 +7,7 @@ import Footer from '../components/Footer';
 import { useCart } from '../context/CartContext';
 
 const CartPage: React.FC = () => {
-    const { cartItems, removeFromCart, updateQuantity, cartTotal } = useCart();
+    const { cartItems, removeFromCart, updateQuantity, cartTotal, shippingTotal } = useCart();
     const navigate = useNavigate();
 
     if (cartItems.length === 0) {
@@ -33,8 +33,8 @@ const CartPage: React.FC = () => {
         <div className="min-h-screen bg-gray-50">
             <Header />
 
-            <main className="container mx-auto px-4 py-8 mb-12">
-                <h1 className="text-3xl font-bold mb-8 text-center md:text-left mt-10">Your Shopping Cart</h1>
+            <main className="container mx-auto px-4 pt-32 pb-12">
+                <h1 className="text-3xl font-bold mb-8 text-center md:text-left">Your Shopping Cart</h1>
 
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* Cart Items */}
@@ -120,11 +120,11 @@ const CartPage: React.FC = () => {
                                 </div>
                                 <div className="flex justify-between text-gray-600">
                                     <span>Shipping</span>
-                                    <span className="text-green-600">Free</span>
+                                    <span>{shippingTotal > 0 ? `Rs. ${shippingTotal.toFixed(2)}` : <span className="text-green-600">Free</span>}</span>
                                 </div>
                                 <div className="border-t pt-4 flex justify-between font-bold text-lg">
                                     <span>Total</span>
-                                    <span>Rs. {cartTotal.toFixed(2)}</span>
+                                    <span>Rs. {(cartTotal + shippingTotal).toFixed(2)}</span>
                                 </div>
                             </div>
 
