@@ -24,6 +24,7 @@ import CareersPage from './pages/CareersPage';
 import LegalPage from './pages/LegalPage';
 import Header from './components/Header';
 import MarketingPopup from './components/MarketingPopup';
+import AnnouncementBar from './components/AnnouncementBar';
 // Admin Imports
 import { AdminProvider } from './context/AdminContext';
 import ProtectedAdminRoute from './components/ProtectedAdminRoute';
@@ -42,6 +43,7 @@ import { Navigate } from 'react-router-dom';
 const HomePage: React.FC = () => {
   return (
     <>
+      <AnnouncementBar />
       <Header />
       <main>
         <Hero />

@@ -12,7 +12,10 @@ const Header: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 w-full z-50 bg-[#F4C430] py-4 shadow-sm">
+    <header
+      className="fixed w-full z-50 bg-[#F4C430] py-4 shadow-sm transition-all duration-300"
+      style={{ top: 'var(--announcement-height, 0px)' }}
+    >
       <div className="container mx-auto px-6 flex items-center justify-between">
         {/* Left: Logo - positioned specifically like the screenshot */}
         <Link to="/" className="flex-shrink-0 cursor-pointer">

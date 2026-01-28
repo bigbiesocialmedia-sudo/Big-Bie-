@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Product, ShippingRule, MarketingSettings } from '../types';
+import { Product, ShippingRule, MarketingSettings, AnnouncementBarSettings } from '../types';
 import { SAMPLE_PRODUCTS } from '../data/products';
 import { db, auth } from '../src/lib/firebase';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc, onSnapshot } from 'firebase/firestore';
@@ -55,6 +55,9 @@ interface AdminContextType {
     // Marketing Settings
     marketingSettings: MarketingSettings;
     updateMarketingSettings: (settings: MarketingSettings) => Promise<void>;
+    // Announcement Bar Settings
+    announcementBarSettings: AnnouncementBarSettings;
+    updateAnnouncementBarSettings: (settings: AnnouncementBarSettings) => Promise<void>;
 }
 const DEFAULT_HOME_SETTINGS: HomeSettings = {
     bannerImages: [
@@ -86,6 +89,15 @@ const DEFAULT_MARKETING_SETTINGS: MarketingSettings = {
     description: 'Experience the perfect blend of comfort and style with our latest arrivals. Premium innerwear designed for your everyday confidence.',
     buttonText: 'Explore Collection',
     buttonLink: '/collections/bras'
+};
+
+const DEFAULT_ANNOUNCEMENT_BAR_SETTINGS: AnnouncementBarSettings = {
+    isEnabled: false,
+    text: 'Free Shipping on all orders over ₹999! Shop Now',
+    textColor: '#ffffff',
+    backgroundColor: '#000000',
+    speed: 'normal',
+    direction: 'rtl'
 };
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
@@ -179,6 +191,21 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         return () => unsubscribe();
     }, []);
 
+    // Announcement Bar Settings
+    const [announcementBarSettings, setAnnouncementBarSettings] = useState<AnnouncementBarSettings>(DEFAULT_ANNOUNCEMENT_BAR_SETTINGS);
+
+    // Load announcementBarSettings from Firebase
+    useEffect(() => {
+        const unsubscribe = onSnapshot(doc(db, 'settings', 'announcement_bar'), (docSnap) => {
+            if (docSnap.exists()) {
+                setAnnouncementBarSettings(docSnap.data() as AnnouncementBarSettings);
+            } else {
+                setDoc(doc(db, 'settings', 'announcement_bar'), DEFAULT_ANNOUNCEMENT_BAR_SETTINGS);
+            }
+        });
+        return () => unsubscribe();
+    }, []);
+
     // Sub-collections
     const [subCollections, setSubCollections] = useState<Record<string, string[]>>({});
 
@@ -239,6 +266,15 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         } catch (error) {
             console.error("Error updating marketing settings:", error);
             alert("Failed to save marketing changes.");
+        }
+    };
+
+    const updateAnnouncementBarSettings = async (settings: AnnouncementBarSettings) => {
+        try {
+            await setDoc(doc(db, 'settings', 'announcement_bar'), settings);
+        } catch (error) {
+            console.error("Error updating announcement bar settings:", error);
+            alert("Failed to save announcement bar changes.");
         }
     };
 
@@ -397,7 +433,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             shippingRules,
             updateShippingRules,
             marketingSettings,
-            updateMarketingSettings
+            updateMarketingSettings,
+            announcementBarSettings,
+            updateAnnouncementBarSettings
         }}>
             {children}
         </AdminContext.Provider>

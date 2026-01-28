@@ -1,11 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { useAdmin } from '../../context/AdminContext';
-import { Save, Megaphone, Image as ImageIcon, Link as LinkIcon, ToggleLeft, ToggleRight, Type, AlignLeft } from 'lucide-react';
+import { Save, Megaphone, Image as ImageIcon, Link as LinkIcon, ToggleLeft, ToggleRight, Type, AlignLeft, Paintbrush, Zap, MoveRight, MoveLeft, X } from 'lucide-react';
 
 const MarketingPage: React.FC = () => {
+    // Marketing presets
+    const PRESET_BG_COLORS = [
+        { name: 'Classic Black', value: '#000000' },
+        { name: 'Urgent Red', value: '#FF0000' },
+        { name: 'Trust Blue', value: '#1976D2' },
+        { name: 'Brand Yellow', value: '#F4C430' },
+        { name: 'Premium Gray', value: '#333333' }
+    ];
+
+    const PRESET_TEXT_COLORS = [
+        { name: 'White', value: '#FFFFFF' },
+        { name: 'Black', value: '#000000' },
+        { name: 'Light Gray', value: '#F5F5F5' }
+    ];
+
     const {
         marketingSettings,
         updateMarketingSettings,
+        announcementBarSettings,
+        updateAnnouncementBarSettings,
         products,
         subCollections
     } = useAdmin();
@@ -17,6 +34,15 @@ const MarketingPage: React.FC = () => {
     const [buttonText, setButtonText] = useState(marketingSettings.buttonText);
     const [buttonLink, setButtonLink] = useState(marketingSettings.buttonLink);
     const [loading, setLoading] = useState(false);
+
+    // Announcement Bar State
+    const [barEnabled, setBarEnabled] = useState(announcementBarSettings.isEnabled);
+    const [barText, setBarText] = useState(announcementBarSettings.text);
+    const [barTextColor, setBarTextColor] = useState(announcementBarSettings.textColor);
+    const [barBgColor, setBarBgColor] = useState(announcementBarSettings.backgroundColor);
+    const [barSpeed, setBarSpeed] = useState(announcementBarSettings.speed);
+    const [barDirection, setBarDirection] = useState(announcementBarSettings.direction);
+    const [loadingBar, setLoadingBar] = useState(false);
 
     // Hierarchical Link Selection State
     const [linkMode, setLinkMode] = useState<'standard' | 'collections' | 'products'>('standard');
@@ -41,6 +67,15 @@ const MarketingPage: React.FC = () => {
             setLinkMode('standard');
         }
     }, [marketingSettings]);
+
+    useEffect(() => {
+        setBarEnabled(announcementBarSettings.isEnabled);
+        setBarText(announcementBarSettings.text);
+        setBarTextColor(announcementBarSettings.textColor);
+        setBarBgColor(announcementBarSettings.backgroundColor);
+        setBarSpeed(announcementBarSettings.speed);
+        setBarDirection(announcementBarSettings.direction);
+    }, [announcementBarSettings]);
 
     // Handle Link Generation
     useEffect(() => {
@@ -67,12 +102,32 @@ const MarketingPage: React.FC = () => {
                 buttonText,
                 buttonLink
             });
-            alert('Marketing settings saved successfully!');
+            alert('Marketing pop-up settings saved successfully!');
         } catch (error: any) {
             console.error("Marketing Settings Error:", error);
             alert('Failed to save settings: ' + error.message);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleSaveBar = async () => {
+        setLoadingBar(true);
+        try {
+            await updateAnnouncementBarSettings({
+                isEnabled: barEnabled,
+                text: barText,
+                textColor: barTextColor,
+                backgroundColor: barBgColor,
+                speed: barSpeed,
+                direction: barDirection
+            });
+            alert('Announcement Bar settings saved successfully!');
+        } catch (error: any) {
+            console.error("Announcement Bar Settings Error:", error);
+            alert('Failed to save settings: ' + error.message);
+        } finally {
+            setLoadingBar(false);
         }
     };
 
@@ -292,6 +347,181 @@ const MarketingPage: React.FC = () => {
                         </div>
                     </div>
                     <p className="text-center text-sm text-gray-400 mt-4 italic">This is how your pop-up will look to customers.</p>
+                </div>
+            </div>
+
+            {/* Announcement Bar Section */}
+            <div className="mt-16 pt-16 border-t border-gray-100">
+                <div className="flex items-center justify-between mb-8">
+                    <div>
+                        <h1 className="text-3xl font-bold">Global Announcement Bar</h1>
+                        <p className="text-gray-500 mt-1">Configure scrolling text bar at the very top of your website.</p>
+                    </div>
+                    <button
+                        onClick={() => setBarEnabled(!barEnabled)}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${barEnabled
+                            ? 'bg-blue-100 text-blue-700'
+                            : 'bg-gray-100 text-gray-500'
+                            }`}
+                    >
+                        {barEnabled ? <ToggleRight className="w-6 h-6" /> : <ToggleLeft className="w-6 h-6" />}
+                        {barEnabled ? 'ANNOUNCEMENT ACTIVE' : 'ANNOUNCEMENT DISABLED'}
+                    </button>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Editor */}
+                    <div className="space-y-6">
+                        <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                            <div className="flex items-center gap-2 mb-6">
+                                <Megaphone className="text-blue-500" />
+                                <h2 className="text-xl font-semibold">Bar Content & Style</h2>
+                            </div>
+
+                            <div className="space-y-5">
+                                <div>
+                                    <label className="flex items-center gap-2 text-sm font-bold text-gray-800 mb-2">
+                                        <Type size={16} className="text-gray-400" />
+                                        Announcement Text
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="e.g. Free Shipping on all orders!"
+                                        className="w-full border p-3 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all"
+                                        value={barText}
+                                        onChange={e => setBarText(e.target.value)}
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div>
+                                        <label className="flex items-center gap-2 text-sm font-bold text-gray-800 mb-3">
+                                            <Paintbrush size={16} className="text-gray-400" />
+                                            Background Color
+                                        </label>
+                                        <div className="grid grid-cols-3 gap-3">
+                                            {PRESET_BG_COLORS.map(color => (
+                                                <button
+                                                    key={color.value}
+                                                    onClick={() => setBarBgColor(color.value)}
+                                                    className={`group relative flex flex-col items-center gap-1.5 p-2 rounded-xl border-2 transition-all ${barBgColor === color.value ? 'border-blue-500 bg-blue-50 shadow-md scale-105' : 'border-gray-100 hover:border-blue-200'}`}
+                                                >
+                                                    <div className="w-10 h-10 rounded-lg shadow-inner flex items-center justify-center" style={{ backgroundColor: color.value }}>
+                                                        {barBgColor === color.value && <div className={`w-3 h-3 rounded-full ${color.value === '#FFFFFF' ? 'bg-black' : 'bg-white'}`}></div>}
+                                                    </div>
+                                                    <span className="text-[10px] font-bold text-gray-600 group-hover:text-blue-600">{color.name}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="flex items-center gap-2 text-sm font-bold text-gray-800 mb-3">
+                                            <Paintbrush size={16} className="text-gray-400" />
+                                            Text Color
+                                        </label>
+                                        <div className="grid grid-cols-3 gap-3">
+                                            {PRESET_TEXT_COLORS.map(color => (
+                                                <button
+                                                    key={color.value}
+                                                    onClick={() => setBarTextColor(color.value)}
+                                                    className={`group relative flex flex-col items-center gap-1.5 p-2 rounded-xl border-2 transition-all ${barTextColor === color.value ? 'border-blue-500 bg-blue-50 shadow-md scale-105' : 'border-gray-100 hover:border-blue-200'}`}
+                                                >
+                                                    <div className="w-10 h-10 rounded-lg shadow-inner border border-gray-100 flex items-center justify-center" style={{ backgroundColor: color.value }}>
+                                                        {barTextColor === color.value && <div className={`w-3 h-3 rounded-full ${color.value === '#FFFFFF' ? 'bg-black' : 'bg-white'}`}></div>}
+                                                    </div>
+                                                    <span className="text-[10px] font-bold text-gray-600 group-hover:text-blue-600">{color.name}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="flex items-center gap-2 text-sm font-bold text-gray-800 mb-2">
+                                            <Zap size={16} className="text-gray-400" />
+                                            Scroll Speed
+                                        </label>
+                                        <select
+                                            className="w-full border p-3 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all"
+                                            value={barSpeed}
+                                            onChange={e => setBarSpeed(e.target.value as any)}
+                                        >
+                                            <option value="slow">Slow</option>
+                                            <option value="normal">Normal</option>
+                                            <option value="fast">Fast</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="flex items-center gap-2 text-sm font-bold text-gray-800 mb-2">
+                                            <AlignLeft size={16} className="text-gray-400" />
+                                            Direction
+                                        </label>
+                                        <div className="flex bg-gray-100 p-1 rounded-xl">
+                                            <button
+                                                onClick={() => setBarDirection('rtl')}
+                                                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg font-bold transition-all ${barDirection === 'rtl' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                                            >
+                                                <MoveLeft size={18} /> RTL
+                                            </button>
+                                            <button
+                                                onClick={() => setBarDirection('ltr')}
+                                                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg font-bold transition-all ${barDirection === 'ltr' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                                            >
+                                                LTR <MoveRight size={18} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <button
+                            onClick={handleSaveBar}
+                            disabled={loadingBar}
+                            className="w-full bg-blue-600 text-white font-bold text-lg py-4 rounded-2xl shadow-xl hover:bg-blue-700 transition-all active:scale-[0.98] flex justify-center items-center gap-2 disabled:opacity-75"
+                        >
+                            <Save size={24} />
+                            {loadingBar ? 'Saving...' : 'Save Announcement Settings'}
+                        </button>
+                    </div>
+
+                    {/* Preview */}
+                    <div className="sticky top-8">
+                        <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+                            <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
+                            Live Preview
+                        </h2>
+                        <div className="bg-gray-100 p-8 rounded-3xl border-4 border-white shadow-inner flex flex-col gap-8 min-h-[500px]">
+                            {/* Mock Site Header Area */}
+                            <div className="w-full bg-white rounded-xl shadow-lg pb-12 overflow-hidden">
+                                {barEnabled && (
+                                    <div
+                                        className="py-2 overflow-hidden flex items-center px-4"
+                                        style={{ backgroundColor: barBgColor, color: barTextColor }}
+                                    >
+                                        <div className="flex-1 whitespace-nowrap text-xs font-bold font-mono">
+                                            {barText || 'Scrolling text preview...'}
+                                        </div>
+                                    </div>
+                                )}
+                                <div className="p-4 border-b flex justify-between items-center">
+                                    <div className="w-24 h-6 bg-gray-200 rounded"></div>
+                                    <div className="flex gap-4">
+                                        <div className="w-8 h-4 bg-gray-100 rounded"></div>
+                                        <div className="w-8 h-4 bg-gray-100 rounded"></div>
+                                        <div className="w-8 h-4 bg-gray-100 rounded"></div>
+                                    </div>
+                                </div>
+                                <div className="p-8 space-y-4">
+                                    <div className="w-3/4 h-8 bg-gray-50 rounded"></div>
+                                    <div className="w-full h-32 bg-gray-50 rounded"></div>
+                                </div>
+                            </div>
+                            <p className="text-center text-sm text-gray-400 italic">This is how the bar appears above your header.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

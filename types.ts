@@ -89,6 +89,15 @@ export interface MarketingSettings {
   buttonLink: string;
 }
 
+export interface AnnouncementBarSettings {
+  isEnabled: boolean;
+  text: string;
+  textColor: string;
+  backgroundColor: string;
+  speed: 'slow' | 'normal' | 'fast';
+  direction: 'ltr' | 'rtl';
+}
+
 export interface Product {
   id: string;
   name: string;
