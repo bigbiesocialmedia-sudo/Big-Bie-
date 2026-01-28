@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAdmin } from '../../context/AdminContext';
 import { Product, ProductVariant, ProductColor, ProductSize, ColorImageGroup } from '../../types';
 import { generateSlug } from '../../data/products';
-import { Save, Plus, Trash2, ArrowLeft, Image as ImageIcon } from 'lucide-react';
+import { Save, Plus, Trash2, ArrowLeft, Image as ImageIcon, Star } from 'lucide-react';
 import ColorManager from '../../components/admin/ColorManager';
 import SizeManager from '../../components/admin/SizeManager';
 import StockMatrix from '../../components/admin/StockMatrix';
@@ -45,10 +45,13 @@ const ProductForm: React.FC = () => {
     const [productSizes, setProductSizes] = useState<ProductSize[]>([]);
     const [stockMatrix, setStockMatrix] = useState<Record<string, number>>({});
 
-    // NEW: Image-First Workflow State (User's Superior Concept)
     const [useImageFirstWorkflow, setUseImageFirstWorkflow] = useState(false);
     const [imageGroups, setImageGroups] = useState<ColorImageGroup[]>([]);
     const [simpleVariants, setSimpleVariants] = useState<VariantEntry[]>([]);
+
+    // NEW: Reviews State
+    const [reviews, setReviews] = useState<any[]>([]);
+    const [newReview, setNewReview] = useState({ reviewerName: '', rating: 5, comment: '' });
 
     useEffect(() => {
         if (isEditMode && existingProduct) {
@@ -62,6 +65,7 @@ const ProductForm: React.FC = () => {
             setRating(existingProduct.rating.toString());
             setReviewCount(existingProduct.reviewCount.toString());
             setImages(existingProduct.images.length > 0 ? existingProduct.images : ['']);
+            setReviews(existingProduct.reviews || []);
 
             // Determine if product has variances
             const hasAnyVariances =
@@ -135,6 +139,38 @@ const ProductForm: React.FC = () => {
         setVariants(newVariants);
     };
 
+    // Review Handlers
+    const handleAddReview = () => {
+        if (!newReview.reviewerName || !newReview.comment) {
+            alert('Please provide a name and comment for the review');
+            return;
+        }
+        const review = {
+            id: `rev-${Date.now()}`,
+            ...newReview,
+            date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+        };
+        setReviews([...reviews, review]);
+        setNewReview({ reviewerName: '', rating: 5, comment: '' });
+        // Update total review count and rating avg
+        const updatedReviews = [...reviews, review];
+        setReviewCount(updatedReviews.length.toString());
+        const avgRating = updatedReviews.length > 0
+            ? updatedReviews.reduce((acc, r) => acc + r.rating, 0) / updatedReviews.length
+            : 0;
+        setRating(avgRating.toFixed(1));
+    };
+
+    const handleRemoveReview = (id: string) => {
+        const updatedReviews = reviews.filter(r => r.id !== id);
+        setReviews(updatedReviews);
+        setReviewCount(updatedReviews.length.toString());
+        const avgRating = updatedReviews.length > 0
+            ? updatedReviews.reduce((acc, r) => acc + r.rating, 0) / updatedReviews.length
+            : 0;
+        setRating(avgRating.toFixed(1));
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -149,6 +185,7 @@ const ProductForm: React.FC = () => {
             description,
             rating: parseFloat(rating),
             reviewCount: parseInt(reviewCount),
+            reviews,
             // Logic: If hasVariances is ON, we ignore global images (send empty).
             // Logic: If hasVariances is OFF, we send global images.
             images: !hasVariances ? images.filter(img => img.trim() !== '') : [],
@@ -394,6 +431,87 @@ const ProductForm: React.FC = () => {
                         )}
                     </section>
                 )}
+
+                {/* 3. Manual Reviews System */}
+                <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-4">
+                    <div className="flex items-center gap-2 mb-4 border-b pb-2">
+                        <Star className="text-[#F4C430]" fill="#F4C430" size={20} />
+                        <h2 className="text-xl font-semibold">Customer Reviews (Manual)</h2>
+                    </div>
+
+                    {/* Add Review Form */}
+                    <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Reviewer Name</label>
+                                <input
+                                    className="w-full border p-2 rounded bg-white"
+                                    placeholder="e.g. Sarah K."
+                                    value={newReview.reviewerName}
+                                    onChange={e => setNewReview({ ...newReview, reviewerName: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Rating (1-5)</label>
+                                <select
+                                    className="w-full border p-2 rounded bg-white"
+                                    value={newReview.rating}
+                                    onChange={e => setNewReview({ ...newReview, rating: parseInt(e.target.value) })}
+                                >
+                                    {[5, 4, 3, 2, 1].map(num => <option key={num} value={num}>{num} Stars</option>)}
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Review Comment</label>
+                            <textarea
+                                className="w-full border p-2 rounded bg-white"
+                                rows={2}
+                                placeholder="Write the review message..."
+                                value={newReview.comment}
+                                onChange={e => setNewReview({ ...newReview, comment: e.target.value })}
+                            />
+                        </div>
+                        <button
+                            type="button"
+                            onClick={handleAddReview}
+                            className="bg-black text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-gray-800 transition-all"
+                        >
+                            <Plus size={16} /> Add Review
+                        </button>
+                    </div>
+
+                    {/* Existing Reviews List */}
+                    <div className="space-y-3">
+                        {reviews.length === 0 ? (
+                            <p className="text-gray-400 text-sm italic text-center py-4">No manual reviews added yet.</p>
+                        ) : (
+                            reviews.map((rev) => (
+                                <div key={rev.id} className="flex items-start justify-between p-4 bg-white border rounded-xl hover:border-[#F4C430] transition-colors">
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className="font-bold text-gray-900">{rev.reviewerName}</span>
+                                            <div className="flex items-center text-[#F4C430]">
+                                                {[...Array(5)].map((_, i) => (
+                                                    <Star key={i} size={12} fill={i < rev.rating ? "#F4C430" : "none"} className={i < rev.rating ? "" : "text-gray-300"} />
+                                                ))}
+                                            </div>
+                                            <span className="text-[10px] text-gray-400 uppercase">{rev.date}</span>
+                                        </div>
+                                        <p className="text-sm text-gray-600 italic">"{rev.comment}"</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleRemoveReview(rev.id)}
+                                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                    >
+                                        <Trash2 size={18} />
+                                    </button>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </section>
 
                 <div className="sticky bottom-4">
                     <button

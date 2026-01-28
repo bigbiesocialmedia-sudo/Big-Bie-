@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Product, ShippingRule } from '../types';
+import { Product, ShippingRule, MarketingSettings } from '../types';
 import { SAMPLE_PRODUCTS } from '../data/products';
 import { db, auth } from '../src/lib/firebase';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc, onSnapshot } from 'firebase/firestore';
@@ -51,6 +51,9 @@ interface AdminContextType {
     loadingAuth: boolean;
     shippingRules: ShippingRule[];
     updateShippingRules: (rules: ShippingRule[]) => Promise<void>;
+    // Marketing Settings
+    marketingSettings: MarketingSettings;
+    updateMarketingSettings: (settings: MarketingSettings) => Promise<void>;
 }
 const DEFAULT_HOME_SETTINGS: HomeSettings = {
     bannerImages: [
@@ -72,6 +75,15 @@ const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
     adminUsername: 'admin@bigbie.com',
     adminPassword: '',
     whatsappNumber: ''
+};
+
+const DEFAULT_MARKETING_SETTINGS: MarketingSettings = {
+    isEnabled: false,
+    bannerImage: 'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&q=80&w=1200',
+    heading: 'Discover Our New Collection',
+    description: 'Experience the perfect blend of comfort and style with our latest arrivals. Premium innerwear designed for your everyday confidence.',
+    buttonText: 'Explore Collection',
+    buttonLink: '/collections/bras'
 };
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
@@ -150,6 +162,21 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         return () => unsubscribe();
     }, []);
 
+    // Marketing Settings
+    const [marketingSettings, setMarketingSettings] = useState<MarketingSettings>(DEFAULT_MARKETING_SETTINGS);
+
+    // Load marketingSettings from Firebase
+    useEffect(() => {
+        const unsubscribe = onSnapshot(doc(db, 'settings', 'marketing'), (docSnap) => {
+            if (docSnap.exists()) {
+                setMarketingSettings(docSnap.data() as MarketingSettings);
+            } else {
+                setDoc(doc(db, 'settings', 'marketing'), DEFAULT_MARKETING_SETTINGS);
+            }
+        });
+        return () => unsubscribe();
+    }, []);
+
     // Sub-collections
     const [subCollections, setSubCollections] = useState<Record<string, string[]>>({});
 
@@ -201,6 +228,15 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         } catch (error) {
             console.error("Error updating sub-collections:", error);
             alert("Failed to save changes.");
+        }
+    };
+
+    const updateMarketingSettings = async (settings: MarketingSettings) => {
+        try {
+            await setDoc(doc(db, 'settings', 'marketing'), settings);
+        } catch (error) {
+            console.error("Error updating marketing settings:", error);
+            alert("Failed to save marketing changes.");
         }
     };
 
@@ -357,7 +393,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             updateSubCollections,
             loadingAuth,
             shippingRules,
-            updateShippingRules
+            updateShippingRules,
+            marketingSettings,
+            updateMarketingSettings
         }}>
             {children}
         </AdminContext.Provider>

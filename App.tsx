@@ -23,6 +23,7 @@ import ContactUsPage from './pages/ContactUsPage';
 import CareersPage from './pages/CareersPage';
 import LegalPage from './pages/LegalPage';
 import Header from './components/Header';
+import MarketingPopup from './components/MarketingPopup';
 // Admin Imports
 import { AdminProvider } from './context/AdminContext';
 import ProtectedAdminRoute from './components/ProtectedAdminRoute';
@@ -34,6 +35,7 @@ import InventoryList from './pages/admin/InventoryList';
 import ProductForm from './pages/admin/ProductForm';
 import SettingsPage from './pages/admin/SettingsPage';
 import HomeSettings from './pages/admin/HomeSettings';
+import MarketingPage from './pages/admin/MarketingPage';
 import ShippingPage from './pages/admin/ShippingPage';
 import { Navigate } from 'react-router-dom';
 
@@ -60,6 +62,7 @@ const App: React.FC = () => {
         <div className="relative min-h-screen">
           <ScrollToTop />
           <WhatsAppButton />
+          <MarketingPopup />
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/collections/bras" element={<BrasPage />} />
@@ -91,6 +94,7 @@ const App: React.FC = () => {
                 <Route path="inventory/edit/:id" element={<ProductForm />} />
                 <Route path="settings" element={<SettingsPage />} />
                 <Route path="home-settings" element={<HomeSettings />} />
+                <Route path="marketing" element={<MarketingPage />} />
                 <Route path="shipping" element={<ShippingPage />} />
                 <Route index element={<Navigate to="dashboard" replace />} />
               </Route>

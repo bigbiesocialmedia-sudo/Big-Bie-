@@ -72,6 +72,23 @@ export interface ColorImageGroup {
   images: string[];         // All images for this color group
 }
 
+export interface ProductReview {
+  id: string;
+  reviewerName: string;
+  rating: number;
+  comment: string;
+  date: string;
+}
+
+export interface MarketingSettings {
+  isEnabled: boolean;
+  bannerImage: string;
+  heading: string;
+  description: string;
+  buttonText: string;
+  buttonLink: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -86,6 +103,7 @@ export interface Product {
   images: string[]; // Product images
   variants: ProductVariant[]; // Legacy: Simple independent variants
   createdAt?: string;
+  reviews?: ProductReview[]; // NEW: Manual reviews
 
   // NEW: Optional fields for advanced variant management
   variantCombinations?: VariantCombination[]; // Advanced: Size+Color combinations with stock

@@ -8,6 +8,7 @@ import ImageGallery from '../components/ImageGallery';
 import VariantSelector from '../components/VariantSelector';
 import AdvancedVariantSelector from '../components/AdvancedVariantSelector';
 import { Star } from 'lucide-react';
+import ReviewAvatar from '../components/ReviewAvatar';
 import {
     usesAdvancedVariants,
     getAvailableSizes,
@@ -407,9 +408,38 @@ const ProductPage: React.FC = () => {
                                 <p className="text-sm text-gray-500">Based on {product.reviewCount} reviews</p>
                             </div>
                         </div>
-                        {/* Placeholder for reviews list - would be dynamic in real app */}
-                        <div className="border-t border-gray-200 pt-4 mt-4">
-                            <p className="text-gray-600 italic">"Absolutely love the fit and comfort. Will buy more!" - Sarah K.</p>
+                        {/* Dynamic Reviews List */}
+                        <div className="space-y-6 mt-8">
+                            {product.reviews && product.reviews.length > 0 ? (
+                                product.reviews.map((review) => (
+                                    <div key={review.id} className="flex gap-4 p-4 bg-white border border-gray-100 rounded-xl shadow-sm">
+                                        <ReviewAvatar name={review.reviewerName} />
+                                        <div className="flex-1">
+                                            <div className="flex justify-between items-start mb-1">
+                                                <div>
+                                                    <h4 className="font-bold text-gray-900">{review.reviewerName}</h4>
+                                                    <div className="flex items-center text-[#F4C430]">
+                                                        {[...Array(5)].map((_, i) => (
+                                                            <Star
+                                                                key={i}
+                                                                size={14}
+                                                                fill={i < review.rating ? "#F4C430" : "none"}
+                                                                className={i < review.rating ? "" : "text-gray-300"}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                <span className="text-xs text-gray-400 uppercase font-medium">{review.date}</span>
+                                            </div>
+                                            <p className="text-gray-600 italic leading-relaxed">"{review.comment}"</p>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="border-t border-gray-200 pt-4 mt-4">
+                                    <p className="text-gray-600 italic">"Absolutely love the fit and comfort. Will buy more!" - Sarah K.</p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
