@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import ImageGallery from '../components/ImageGallery';
 import VariantSelector from '../components/VariantSelector';
 import AdvancedVariantSelector from '../components/AdvancedVariantSelector';
+import ProductCard from '../components/ProductCard';
 import { Star } from 'lucide-react';
 import ReviewAvatar from '../components/ReviewAvatar';
 import {
@@ -444,25 +445,25 @@ const ProductPage: React.FC = () => {
                     </div>
                 </div>
 
-                {/* People Also Viewed Section */}
-                <div>
-                    <h2 className="text-2xl font-bold mb-6">People Also Viewed</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-                        {/* This would normally filter out current product */}
-                        {[1, 2, 3, 4].map((item) => (
-                            <div key={item} className="group cursor-pointer">
-                                <div className="bg-gray-100 aspect-[3/4] mb-3 rounded-lg overflow-hidden">
-                                    {/* Placeholder images */}
-                                    <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
-                                        Product {item}
-                                    </div>
-                                </div>
-                                <h3 className="font-semibold text-gray-900 group-hover:text-[#F4C430] transition-colors">Similar Product {item}</h3>
-                                <p className="text-gray-500">Rs. {450 + item * 50}.00</p>
+                {/* People Also Viewed Section (Dynamic) */}
+                {(() => {
+                    const similarProducts = products
+                        .filter(p => p.category === product.category && p.id !== product.id)
+                        .slice(0, 4);
+
+                    if (similarProducts.length === 0) return null;
+
+                    return (
+                        <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
+                            <h2 className="text-2xl font-bold mb-6">People Also Viewed</h2>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+                                {similarProducts.map((p) => (
+                                    <ProductCard key={p.id} product={p} />
+                                ))}
                             </div>
-                        ))}
-                    </div>
-                </div>
+                        </div>
+                    );
+                })()}
 
             </main>
 
