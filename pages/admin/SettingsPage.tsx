@@ -13,12 +13,14 @@ const SettingsPage: React.FC = () => {
     // Local state for form inputs
     const [whatsappNumber, setWhatsappNumber] = useState(systemSettings.whatsappNumber);
     const [officialNumber, setOfficialNumber] = useState(systemSettings.officialNumber || '');
+    const [nextOrderId, setNextOrderId] = useState(systemSettings.nextOrderId || 10000);
     const [loading, setLoading] = useState(false);
 
     // Sync local state when Firebase loads settings/user
     useEffect(() => {
         setWhatsappNumber(systemSettings.whatsappNumber);
         setOfficialNumber(systemSettings.officialNumber || '');
+        setNextOrderId(systemSettings.nextOrderId || 10000);
     }, [systemSettings]);
 
     const handleSave = async () => {
@@ -28,7 +30,8 @@ const SettingsPage: React.FC = () => {
             updateSystemSettings({
                 ...systemSettings,
                 whatsappNumber,
-                officialNumber
+                officialNumber,
+                nextOrderId: Number(nextOrderId)
             });
 
             alert('System settings saved successfully!');
@@ -80,6 +83,19 @@ const SettingsPage: React.FC = () => {
                                 className="w-full border p-2 rounded-lg"
                                 value={officialNumber}
                                 onChange={e => setOfficialNumber(e.target.value)}
+                            />
+                        </div>
+
+                        {/* Order ID Counter */}
+                        <div>
+                            <label className="block text-sm font-bold text-gray-800 mb-1">Next Order ID Counter</label>
+                            <p className="text-xs text-gray-500 mb-2">The ID assigned to the very next order. Starts from 10000 by default.</p>
+                            <input
+                                type="number"
+                                placeholder="e.g. 10000"
+                                className="w-full border p-2 rounded-lg"
+                                value={nextOrderId}
+                                onChange={e => setNextOrderId(Number(e.target.value))}
                             />
                         </div>
                     </div>

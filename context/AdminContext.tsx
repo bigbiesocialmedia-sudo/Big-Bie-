@@ -24,6 +24,7 @@ export interface SystemSettings {
     adminPassword: string; // Kept for legacy/display, but Auth is validating
     whatsappNumber: string; // For Orders
     officialNumber?: string; // For Dealership/Careers/Inquiries
+    nextOrderId: number; // For sequential ordering
 }
 
 interface AdminContextType {
@@ -74,7 +75,8 @@ const DEFAULT_HOME_SETTINGS: HomeSettings = {
 const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
     adminUsername: 'admin@bigbie.com',
     adminPassword: '',
-    whatsappNumber: ''
+    whatsappNumber: '',
+    nextOrderId: 10000
 };
 
 const DEFAULT_MARKETING_SETTINGS: MarketingSettings = {

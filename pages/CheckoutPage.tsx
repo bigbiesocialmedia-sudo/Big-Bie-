@@ -4,6 +4,8 @@ import { useCart } from '../context/CartContext';
 import { useAdmin } from '../context/AdminContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { db } from '../src/lib/firebase';
+import { doc, runTransaction } from 'firebase/firestore';
 
 const CheckoutPage: React.FC = () => {
     const { cartItems, cartTotal, shippingTotal, clearCart } = useCart();
@@ -24,7 +26,7 @@ const CheckoutPage: React.FC = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleWhatsAppRedirect = (e: React.FormEvent) => {
+    const handleWhatsAppRedirect = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (cartItems.length === 0) {
@@ -42,9 +44,26 @@ const CheckoutPage: React.FC = () => {
             return;
         }
 
-        // 1. Generate Order details (Random 5-digit number > 10000)
-        const randomOrderNum = Math.floor(10000 + Math.random() * 90000);
-        const orderId = `ORD-${randomOrderNum}`;
+        // 1. Generate Order details (Sequential from Firebase)
+        let orderId = `ORD-${Math.floor(10000 + Math.random() * 90000)}`; // Fallback
+
+        try {
+            const newOrderNum = await runTransaction(db, async (transaction) => {
+                const systemRef = doc(db, 'settings', 'system');
+                const systemDoc = await transaction.get(systemRef);
+                if (!systemDoc.exists()) {
+                    throw new Error("System settings not found");
+                }
+
+                const currentNextId = systemDoc.data().nextOrderId || 10000;
+                transaction.update(systemRef, { nextOrderId: currentNextId + 1 });
+                return currentNextId;
+            });
+            orderId = `ORD-${newOrderNum}`;
+        } catch (error) {
+            console.error("Order ID Transaction failed:", error);
+            // Fallback stays as random OR-XXXXX
+        }
 
         // 2. Format Product Details with clear breakdown
         const productDetails = cartItems.map((item, index) => {
