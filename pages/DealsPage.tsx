@@ -46,9 +46,9 @@ Expected Volume: ${formData.volume}
     return (
         <>
             <Header />
-            <main className="min-h-screen bg-white pt-32">
+            <main className="min-h-screen bg-white">
                 {/* Hero Section */}
-                <div className="relative bg-black text-white py-20 lg:py-32 overflow-hidden">
+                <div className="relative bg-black text-white pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
                     <img
                         src="https://images.pexels.com/photos/33175650/pexels-photo-33175650.jpeg"
                         alt="Warehouse Distribution"
