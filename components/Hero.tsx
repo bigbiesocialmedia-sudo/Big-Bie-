@@ -21,7 +21,7 @@ const Hero: React.FC = () => {
   }, [heroImages.length]);
 
   return (
-    <section className="w-full bg-[#FAFAFA] pt-32 pb-12 lg:pt-48 lg:pb-24 overflow-hidden">
+    <section className="w-full bg-[#FAFAFA] py-12 lg:py-24 overflow-hidden">
       <div className="container mx-auto px-4 lg:px-6 max-w-[1200px]">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12">
 

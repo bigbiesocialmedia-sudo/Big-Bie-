@@ -33,7 +33,7 @@ const CartPage: React.FC = () => {
         <div className="min-h-screen bg-gray-50">
             <Header />
 
-            <main className="container mx-auto px-4 pt-32 pb-12">
+            <main className="container mx-auto px-4 py-8 md:py-12">
                 <h1 className="text-3xl font-bold mb-8 text-center md:text-left">Your Shopping Cart</h1>
 
                 <div className="flex flex-col lg:flex-row gap-8">

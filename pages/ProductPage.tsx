@@ -239,7 +239,7 @@ const ProductPage: React.FC = () => {
         <div className="min-h-screen bg-white">
             <Header />
 
-            <main className="max-w-7xl mx-auto px-4 pt-32 pb-16">
+            <main className="max-w-7xl mx-auto px-4 py-8 md:py-16">
                 {/* Breadcrumb */}
                 <nav className="flex items-center gap-2 text-sm mb-6 overflow-x-auto whitespace-nowrap">
                     <Link to="/" className="text-gray-600 hover:text-gray-900">

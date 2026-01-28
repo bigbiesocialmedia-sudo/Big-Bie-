@@ -65,43 +65,48 @@ const App: React.FC = () => {
           <ScrollToTop />
           <WhatsAppButton />
           <MarketingPopup />
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/collections/bras" element={<BrasPage />} />
-            <Route path="/collections/slips" element={<SlipsPage />} />
-            <Route path="/collections/panties" element={<PantiesPage />} />
-            <Route path="/collections/kids" element={<KidsPage />} />
-            <Route path="/products/:productSlug" element={<ProductPage />} />
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
+          <div
+            className="transition-all duration-300 ease-in-out"
+            style={{ paddingTop: 'calc(var(--announcement-height, 0px) + var(--header-height, 0px))' }}
+          >
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/collections/bras" element={<BrasPage />} />
+              <Route path="/collections/slips" element={<SlipsPage />} />
+              <Route path="/collections/panties" element={<PantiesPage />} />
+              <Route path="/collections/kids" element={<KidsPage />} />
+              <Route path="/products/:productSlug" element={<ProductPage />} />
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
 
-            {/* About Section Routes */}
-            <Route path="/about/our-story" element={<OurStoryPage />} />
-            <Route path="/about/deals" element={<DealsPage />} />
+              {/* About Section Routes */}
+              <Route path="/about/our-story" element={<OurStoryPage />} />
+              <Route path="/about/deals" element={<DealsPage />} />
 
-            <Route path="/about/contact-us" element={<ContactUsPage />} />
-            <Route path="/about/careers" element={<CareersPage />} />
+              <Route path="/about/contact-us" element={<ContactUsPage />} />
+              <Route path="/about/careers" element={<CareersPage />} />
 
-            {/* Legal Page */}
-            <Route path="/legal" element={<LegalPage />} />
+              {/* Legal Page */}
+              <Route path="/legal" element={<LegalPage />} />
 
-            {/* Admin Routes */}
-            <Route path="/admin/login" element={<LoginPage />} />
-            <Route path="/admin" element={<ProtectedAdminRoute />}>
-              <Route element={<AdminLayout />}>
-                <Route path="dashboard" element={<Dashboard />} />
-                <Route path="collections" element={<CollectionsPage />} />
-                <Route path="inventory" element={<InventoryList />} />
-                <Route path="inventory/new" element={<ProductForm />} />
-                <Route path="inventory/edit/:id" element={<ProductForm />} />
-                <Route path="settings" element={<SettingsPage />} />
-                <Route path="home-settings" element={<HomeSettings />} />
-                <Route path="marketing" element={<MarketingPage />} />
-                <Route path="shipping" element={<ShippingPage />} />
-                <Route index element={<Navigate to="dashboard" replace />} />
+              {/* Admin Routes */}
+              <Route path="/admin/login" element={<LoginPage />} />
+              <Route path="/admin" element={<ProtectedAdminRoute />}>
+                <Route element={<AdminLayout />}>
+                  <Route path="dashboard" element={<Dashboard />} />
+                  <Route path="collections" element={<CollectionsPage />} />
+                  <Route path="inventory" element={<InventoryList />} />
+                  <Route path="inventory/new" element={<ProductForm />} />
+                  <Route path="inventory/edit/:id" element={<ProductForm />} />
+                  <Route path="settings" element={<SettingsPage />} />
+                  <Route path="home-settings" element={<HomeSettings />} />
+                  <Route path="marketing" element={<MarketingPage />} />
+                  <Route path="shipping" element={<ShippingPage />} />
+                  <Route index element={<Navigate to="dashboard" replace />} />
+                </Route>
               </Route>
-            </Route>
-          </Routes>
+            </Routes>
+          </div>
         </div>
       </CartProvider>
     </AdminProvider>

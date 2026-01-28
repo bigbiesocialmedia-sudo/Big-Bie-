@@ -10,9 +10,25 @@ const Header: React.FC = () => {
   const { cartCount } = useCart();
   const { subCollections } = useAdmin();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const headerRef = React.useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const updateHeaderHeight = () => {
+      if (headerRef.current) {
+        document.documentElement.style.setProperty('--header-height', `${headerRef.current.offsetHeight}px`);
+      } else {
+        document.documentElement.style.setProperty('--header-height', '0px');
+      }
+    };
+
+    updateHeaderHeight();
+    window.addEventListener('resize', updateHeaderHeight);
+    return () => window.removeEventListener('resize', updateHeaderHeight);
+  }, []);
 
   return (
     <header
+      ref={headerRef}
       className="fixed w-full z-50 bg-[#F4C430] py-4 shadow-sm transition-all duration-300"
       style={{ top: 'var(--announcement-height, 0px)' }}
     >

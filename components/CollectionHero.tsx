@@ -11,7 +11,7 @@ interface CollectionHeroProps {
 
 const CollectionHero: React.FC<CollectionHeroProps> = ({ title, imageUrl, bgColor = 'bg-gray-200', objectPosition = 'object-center' }) => {
     return (
-        <section className={`relative w-full h-[450px] overflow-hidden ${bgColor} pt-24 lg:pt-32`}>
+        <section className={`relative w-full h-[450px] overflow-hidden ${bgColor} py-12 lg:py-16`}>
             <motion.div
                 initial={{ scale: 1.05, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}

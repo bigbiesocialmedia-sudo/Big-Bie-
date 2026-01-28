@@ -105,7 +105,7 @@ const CheckoutPage: React.FC = () => {
         <div className="min-h-screen bg-gray-50">
             <Header />
 
-            <main className="container mx-auto px-4 pt-32 pb-12">
+            <main className="container mx-auto px-4 py-8 md:py-12">
                 <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-sm p-6 md:p-8">
                     <h1 className="text-2xl font-bold mb-6 text-center">Checkout</h1>
 

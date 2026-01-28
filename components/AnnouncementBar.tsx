@@ -44,7 +44,7 @@ const AnnouncementBar: React.FC = () => {
     return (
         <div
             ref={barRef}
-            className="relative w-full overflow-hidden z-[60] py-2 flex items-center border-b border-white/10"
+            className="fixed top-0 left-0 w-full overflow-hidden z-[60] py-2 flex items-center border-b border-white/10"
             style={{ backgroundColor, color: textColor }}
         >
             <style>
