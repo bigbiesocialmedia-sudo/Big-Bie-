@@ -116,6 +116,14 @@ const Footer: React.FC = () => {
 
         </div>
 
+        {/* Bottom Bar */}
+        <div className="pt-8 border-t border-black/10 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-black/60">
+          <p>© 2026 Big Bie. All rights reserved.</p>
+          <p className="font-medium">
+            Developed by <span className="text-black">Ash Software Solutions</span>
+          </p>
+        </div>
+
       </div>
     </footer>
   );

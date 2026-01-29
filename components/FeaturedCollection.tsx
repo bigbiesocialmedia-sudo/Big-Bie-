@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAdmin } from '../context/AdminContext';
@@ -229,10 +229,36 @@ const FeaturedCard = ({ product, index }: { product: Product; index: number }) =
 
 const FeaturedCollection: React.FC = () => {
   const { products, homeSettings } = useAdmin();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isPaused, setIsPaused] = useState(false);
 
   // Filter products based on saved IDs in homeSettings
   // SYNC FIX: We ONLY show what is in homeSettings. No auto-fill fallback.
   const displayProducts = products.filter(p => homeSettings.featuredProductIds.includes(p.id));
+
+  useEffect(() => {
+    if (isPaused || displayProducts.length === 0) return;
+
+    const interval = setInterval(() => {
+      if (scrollRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+        const maxScroll = scrollWidth - clientWidth;
+
+        // Calculate scroll amount (one card width + gap)
+        const isMobile = window.innerWidth < 768;
+        const scrollAmount = isMobile ? 304 : 344; // 280+24 or 320+24
+
+        if (scrollLeft >= maxScroll - 5) {
+          // Reset to start
+          scrollRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+      }
+    }, 4000); // Scroll every 4 seconds
+
+    return () => clearInterval(interval);
+  }, [isPaused, displayProducts.length]);
 
   // Hide section completely if no products
   if (displayProducts.length === 0) {
@@ -240,7 +266,11 @@ const FeaturedCollection: React.FC = () => {
   }
 
   return (
-    <section className="py-20 bg-gray-50/50">
+    <section
+      className="py-20 bg-gray-50/50"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
       <div className="container mx-auto px-6 max-w-[1200px]">
 
         {/* Header */}
@@ -252,7 +282,10 @@ const FeaturedCollection: React.FC = () => {
         </div>
 
         {/* Product Carousel - Horizontal Scroll */}
-        <div className="flex overflow-x-auto gap-6 pb-8 -mx-6 px-6 md:mx-0 md:px-0 scrollbar-hide snap-x">
+        <div
+          ref={scrollRef}
+          className="flex overflow-x-auto gap-6 pb-8 -mx-6 px-6 md:mx-0 md:px-0 scrollbar-hide snap-x pointer-events-auto"
+        >
           {displayProducts.map((product, index) => (
             <div key={product.id} className="w-[280px] md:w-[320px] flex-shrink-0 snap-center">
               <FeaturedCard product={product} index={index} />
