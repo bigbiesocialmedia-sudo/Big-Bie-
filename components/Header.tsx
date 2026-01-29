@@ -5,11 +5,13 @@ import { User, Search, ShoppingCart, ChevronDown, Menu, X } from 'lucide-react';
 import { NAV_LINKS, Logo } from '../constants';
 import { useCart } from '../context/CartContext';
 import { useAdmin } from '../context/AdminContext';
+import SearchOverlay from './SearchOverlay';
 
 const Header: React.FC = () => {
   const { cartCount } = useCart();
   const { subCollections } = useAdmin();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const headerRef = React.useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -87,7 +89,12 @@ const Header: React.FC = () => {
         {/* Right: Icons */}
         <div className="flex items-center space-x-8 text-black">
 
-          <button className="hover:text-white transition-transform hover:scale-110"><Search size={24} strokeWidth={1.5} /></button>
+          <button
+            onClick={() => setIsSearchOpen(true)}
+            className="hover:text-white transition-transform hover:scale-110"
+          >
+            <Search size={24} strokeWidth={1.5} />
+          </button>
           <button className="hover:text-white transition-transform hover:scale-110 relative">
             <Link to="/cart">
               <ShoppingCart size={24} strokeWidth={1.5} />
@@ -163,6 +170,7 @@ const Header: React.FC = () => {
           </div>
         )
       }
+      <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </header >
   );
 };
