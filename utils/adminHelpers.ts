@@ -10,8 +10,33 @@
 export const generateSlug = (name: string): string => {
     return name
         .toLowerCase()
-        .replace(/\s+/g, '')  // Remove spaces
-        .replace(/[^a-z0-9-]/g, ''); // Remove special characters
+        .trim()
+        .replace(/[^a-z0-9\s-]/g, '') // Remove invalid chars first
+        .replace(/\s+/g, '-')         // Replace spaces with hyphens
+        .replace(/-+/g, '-');         // Remove duplicate hyphens
+};
+
+/**
+ * Sanitize a string for use as a Firebase key (no dots, slashes, etc.)
+ * @param key - The unsafe key string
+ * @returns Safe string
+ */
+export const sanitizeKey = (key: string): string => {
+    return key.replace(/[./#$\[\]]/g, '-');
+};
+
+/**
+ * Validate image URL format
+ * @param url - The string to check
+ * @returns true if valid URL format
+ */
+export const isValidUrl = (url: string): boolean => {
+    try {
+        new URL(url);
+        return true;
+    } catch (_) {
+        return false;
+    }
 };
 
 /**
@@ -88,12 +113,16 @@ export const generateVariantCombinations = (
 
             // Only create combination if stock is defined and > 0
             if (stock !== undefined && stock >= 0) {
+                // Sanitize values for the final object to match safeColors/safeSizes
+                const safeSize = sanitizeKey(size.value);
+                const safeColor = sanitizeKey(color.value);
+
                 combinations.push({
-                    id: `var-${size.value}-${color.value}`,
-                    sku: `${size.value.toUpperCase()}-${color.name.toUpperCase()}`,
-                    size: size.value,
+                    id: `var-${safeSize}-${safeColor}`,
+                    sku: `${safeSize.toUpperCase()}-${color.name.toUpperCase().replace(/[^A-Z0-9]/g, '')}`,
+                    size: safeSize,
                     sizeLabel: size.name,
-                    color: color.value,
+                    color: safeColor,
                     colorLabel: color.name,
                     stock: stock,
                     images: color.images, // Link images from color

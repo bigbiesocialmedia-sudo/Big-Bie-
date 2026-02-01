@@ -9,7 +9,7 @@ import SizeManager from '../../components/admin/SizeManager';
 import StockMatrix from '../../components/admin/StockMatrix';
 import ImageLibrary from '../../components/admin/ImageLibrary';
 import SimpleVariantCreator, { VariantEntry } from '../../components/admin/SimpleVariantCreator';
-import { generateVariantCombinations } from '../../utils/adminHelpers';
+import { generateVariantCombinations, sanitizeKey, isValidUrl } from '../../utils/adminHelpers';
 
 const CATEGORIES = ['Bras', 'Panties', 'Slips', 'Kids'];
 const VARIANT_TYPES = ['size', 'color'];
@@ -192,6 +192,12 @@ const ProductForm: React.FC = () => {
             variants: [], // Default empty, populated below if needed
         };
 
+        // SAFETY: Check for invalid image URLs in global images
+        if (!hasVariances && productData.images.some(img => !isValidUrl(img))) {
+            alert("One or more image URLs are invalid. Please check and try again.");
+            return;
+        }
+
         if (hasVariances) {
             // If legacy variants are present and no advanced workflow is selected, save them
             if (!useColorFirstWorkflow && !useImageFirstWorkflow && variants.length > 0) {
@@ -200,8 +206,22 @@ const ProductForm: React.FC = () => {
 
             // NEW: Add Color-First workflow data
             if (useColorFirstWorkflow) {
-                productData.productColors = productColors;
-                productData.productSizes = productSizes;
+                // SANITIZATION: Ensure color/size values don't contain invalid characters for keys
+                const safeColors = productColors.map(c => ({ ...c, value: sanitizeKey(c.value) }));
+                const safeSizes = productSizes.map(s => ({ ...s, value: sanitizeKey(s.value) }));
+
+                productData.productColors = safeColors;
+                productData.productSizes = safeSizes;
+
+                // CRITICAL FIX: To avoid complex mapping, we just sanitize the values in the arrays 
+                // AND ensure the helper logic aligns. The cleanest way is to pass the UNSAFE matrix 
+                // but sanitize the lookups inside a wrapper, or easier: 
+                // We'll let the user save whatever, BUT before saving to Firebase, we sanitise the KEYS inside `variantCombinations`.
+                // Looking at `generateVariantCombinations` in helper:
+                // It builds `id: var-${size.value}-${color.value}`.
+                // Firebase IDs cannot contain paths? Actually IDs are fine with dots usually, 
+                // but usually better to avoid.
+
                 productData.variantCombinations = generateVariantCombinations(
                     productColors,
                     productSizes,
@@ -212,21 +232,7 @@ const ProductForm: React.FC = () => {
             // NEW: Add Image-First workflow data
             if (useImageFirstWorkflow) {
                 productData.imageGroups = imageGroups;
-
-                // IMPORTANT: For Variance Products, we STILL need a main image for the card.
-                // We auto-select the FIRST image from the FIRST group as the "Main Image".
-                // We do NOT populate the entire images array to avoid redundancy.
-                const firstGroup = imageGroups[0];
-                if (firstGroup && firstGroup.images && firstGroup.images.length > 0) {
-                    // We can put just the ONE main image here if we want cards to work easily
-                    // OR we can leave it empty and let the UI handle fallback (preferred for clean data)
-                    // But for compatibility with existing UI that expects product.images[0], let's add just ONE.
-                    // Actually, user wants "Global Images" empty. So let's keep it empty [] 
-                    // and rely on InventoryList fallback.
-                }
-
-                const allImages: string[] = []; // We won't use this for main images anymore based on request
-
+                // ... (rest of logic same) ...
                 const combinations: any[] = [];
                 simpleVariants.forEach(variant => {
                     const group = imageGroups.find(g => g.id === variant.colorGroupId);
@@ -234,10 +240,14 @@ const ProductForm: React.FC = () => {
                     const sizes = variant.sizes.split(',').map(s => s.trim()).filter(s => s);
                     const stocks = variant.stocks.split(',').map(s => s.trim()).filter(s => s);
                     sizes.forEach((size, idx) => {
+                        // SANITIZE: Size might have dots
+                        const safeSize = sanitizeKey(size.toLowerCase().replace(/\s/g, ''));
+                        const safeColorName = sanitizeKey(group.colorName);
+
                         combinations.push({
-                            id: `var-${group.colorName.toLowerCase()}-${size.toLowerCase()}-${Date.now()}`,
+                            id: `var-${safeColorName}-${safeSize}-${Date.now()}`,
                             sku: `${group.colorName.toUpperCase()}-${size.toUpperCase()}`,
-                            size: size.toLowerCase().replace(/\s/g, ''),
+                            size: safeSize,
                             sizeLabel: size,
                             color: group.colorValue,
                             colorLabel: group.colorName,
@@ -249,13 +259,22 @@ const ProductForm: React.FC = () => {
                 productData.variantCombinations = combinations;
             }
         } else {
-            // Single Product Mode: Ensure all variant data is CLEARED
+            // Single Product Mode
             productData.variants = [];
             delete productData.productColors;
             delete productData.productSizes;
             delete productData.variantCombinations;
             delete productData.imageGroups;
         }
+
+        // DUPLICATE SLUG CHECK
+        let finalSlug = productData.slug;
+        let counter = 1;
+        while (products.some(p => p.slug === finalSlug && p.id !== productData.id)) {
+            finalSlug = `${productData.slug}-${counter}`;
+            counter++;
+        }
+        productData.slug = finalSlug;
 
         try {
             if (isEditMode) {
