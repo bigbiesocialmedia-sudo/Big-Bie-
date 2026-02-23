@@ -48,6 +48,8 @@ const MarketingPopup: React.FC = () => {
         setTimeout(() => setShouldRender(false), 500);
     };
 
+    const isExternalLink = marketingSettings.buttonLink.startsWith('http');
+
     if (!shouldRender || isAdminPage) return null;
 
     return (
@@ -86,13 +88,25 @@ const MarketingPopup: React.FC = () => {
                             {marketingSettings.description}
                         </p>
 
-                        <Link
-                            to={marketingSettings.buttonLink}
-                            onClick={handleClose}
-                            className="inline-block w-full bg-black text-[#F4C430] text-lg font-black py-5 rounded-2xl shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] hover:shadow-[#F4C430]/20 hover:-translate-y-1 transition-all active:scale-95 tracking-wide uppercase"
-                        >
-                            {marketingSettings.buttonText}
-                        </Link>
+                        {isExternalLink ? (
+                            <a
+                                href={marketingSettings.buttonLink}
+                                onClick={handleClose}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-block w-full bg-black text-[#F4C430] text-center text-lg font-black py-5 rounded-2xl shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] hover:shadow-[#F4C430]/20 hover:-translate-y-1 transition-all active:scale-95 tracking-wide uppercase"
+                            >
+                                {marketingSettings.buttonText}
+                            </a>
+                        ) : (
+                            <Link
+                                to={marketingSettings.buttonLink}
+                                onClick={handleClose}
+                                className="inline-block w-full bg-black text-[#F4C430] text-lg font-black py-5 rounded-2xl shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] hover:shadow-[#F4C430]/20 hover:-translate-y-1 transition-all active:scale-95 tracking-wide uppercase text-center"
+                            >
+                                {marketingSettings.buttonText}
+                            </Link>
+                        )}
 
                         <button
                             onClick={handleClose}

@@ -65,7 +65,12 @@ Expected Volume: ${formData.volume}
                             Become an authorized dealer or distributor with Big B Innerwears.
                             Partner with a fast-growing manufacturer supplying high-demand products across India and global markets.
                         </p>
-                        <a href="#apply-form" className="bg-white text-black px-8 py-4 font-bold rounded-lg hover:bg-gray-100 transition-colors inline-flex items-center gap-2">
+                        <a
+                            href="https://businessprofile.bigbieinnerwear.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-white text-black px-8 py-4 font-bold rounded-lg hover:bg-gray-100 transition-colors inline-flex items-center gap-2"
+                        >
                             Apply for Dealership <ArrowRight size={20} />
                         </a>
                     </div>

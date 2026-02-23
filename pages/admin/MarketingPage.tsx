@@ -45,7 +45,7 @@ const MarketingPage: React.FC = () => {
     const [loadingBar, setLoadingBar] = useState(false);
 
     // Hierarchical Link Selection State
-    const [linkMode, setLinkMode] = useState<'standard' | 'collections' | 'products'>('standard');
+    const [linkMode, setLinkMode] = useState<'standard' | 'collections' | 'products' | 'custom'>('standard');
     const [selectedCollection, setSelectedCollection] = useState('');
     const [selectedSubCollection, setSelectedSubCollection] = useState('');
     const [selectedProduct, setSelectedProduct] = useState('');
@@ -59,7 +59,9 @@ const MarketingPage: React.FC = () => {
         setButtonLink(marketingSettings.buttonLink);
 
         // Try to determine linkMode from existing link
-        if (marketingSettings.buttonLink.startsWith('/products/')) {
+        if (marketingSettings.buttonLink.startsWith('http')) {
+            setLinkMode('custom');
+        } else if (marketingSettings.buttonLink.startsWith('/products/')) {
             setLinkMode('products');
         } else if (marketingSettings.buttonLink.includes('?type=')) {
             setLinkMode('collections');
@@ -231,8 +233,12 @@ const MarketingPage: React.FC = () => {
                                     value={linkMode === 'standard' ? buttonLink : linkMode}
                                     onChange={(e) => {
                                         const val = e.target.value;
-                                        if (val === 'collections' || val === 'products') {
+                                        if (val === 'collections' || val === 'products' || val === 'custom') {
                                             setLinkMode(val as any);
+                                            // Don't clear custom link if switching back
+                                            if (val !== 'custom' && buttonLink.startsWith('http')) {
+                                                setButtonLink('/');
+                                            }
                                         } else {
                                             setLinkMode('standard');
                                             setButtonLink(val);
@@ -250,7 +256,24 @@ const MarketingPage: React.FC = () => {
                                         <option value="collections">Collection Pages...</option>
                                         <option value="products">Specific Product...</option>
                                     </optgroup>
+                                    <optgroup label="Advanced">
+                                        <option value="custom">Custom URL...</option>
+                                    </optgroup>
                                 </select>
+
+                                {/* Level 2: Custom URL Input */}
+                                {linkMode === 'custom' && (
+                                    <div className="animate-in fade-in slide-in-from-top-2">
+                                        <label className="block text-[10px] font-bold text-gray-400 mb-1 uppercase">Enter URL (Internal or External)</label>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. https://google.com or /blog"
+                                            className="w-full border p-3 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#F4C430] transition-all"
+                                            value={buttonLink}
+                                            onChange={(e) => setButtonLink(e.target.value)}
+                                        />
+                                    </div>
+                                )}
 
                                 {/* Level 2: Collection Selection */}
                                 {(linkMode === 'collections' || linkMode === 'products') && (

@@ -82,7 +82,12 @@ const AnnouncementBar: React.FC = () => {
                 `}
             </style>
 
-            <div className="flex-1 overflow-hidden pointer-events-none">
+            <a
+                href="https://businessprofile.bigbieinnerwear.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 overflow-hidden cursor-pointer"
+            >
                 <div className="marquee-content">
                     {/* Render 10 items in the first half */}
                     {[...Array(10)].map((_, i) => (
@@ -99,7 +104,7 @@ const AnnouncementBar: React.FC = () => {
                         </div>
                     ))}
                 </div>
-            </div>
+            </a>
         </div>
     );
 };
